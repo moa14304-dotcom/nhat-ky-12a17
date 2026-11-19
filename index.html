@@ -1,0 +1,411 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Nhật ký 12A17</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600;800&family=Patrick+Hand&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#1B2A4A;--paper:#F5F8FC;--rule:#C9D6EA;--phuong:#D9382B;--muted:#5C6B88;--white:#fff}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;color:var(--ink);font:16px/1.65 "Be Vietnam Pro",system-ui,sans-serif;background:var(--paper) repeating-linear-gradient(transparent 0 31px,var(--rule) 31px 32px)}
+button,input,textarea{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--phuong);outline-offset:2px}
+.wrap{max-width:860px;margin:0 auto;padding:0 20px}
+header.top{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:16px 0;flex-wrap:wrap}
+.brand{font:1.35rem "Patrick Hand",cursive}
+.actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.who{color:var(--muted);font-size:.9rem}
+.btn{border:2px solid var(--ink);background:var(--white);padding:7px 16px;border-radius:6px 14px 6px 14px;cursor:pointer;font-weight:600}
+.btn:hover{background:var(--ink);color:var(--white)}
+.btn.main{background:var(--phuong);border-color:var(--phuong);color:var(--white)}
+.btn.main:hover{background:var(--ink);border-color:var(--ink)}
+.btn.small{padding:2px 10px;font-size:.8rem;border-width:1px}
+.hero{padding:48px 0 36px}
+.hero h1{font-size:clamp(2.4rem,8vw,4.6rem);line-height:1.05;margin:0;font-weight:800;letter-spacing:-.02em;background:var(--paper);display:inline;box-decoration-break:clone;-webkit-box-decoration-break:clone;padding:0 .15em 0 0}
+.hero p{margin:18px 0 0;font:1.4rem "Patrick Hand",cursive;color:var(--muted);background:var(--paper);display:inline-block;padding-right:.4em}
+.count{margin-top:10px;display:inline-block;background:var(--ink);color:var(--white);padding:6px 14px;border-radius:4px 14px 4px 14px;font-weight:600}
+.count b{color:#FFB4AA;font-size:1.2em}
+.timeline{margin:20px 0 80px;padding-left:28px;border-left:3px solid var(--phuong);position:relative}
+.month{font:1.7rem "Patrick Hand",cursive;margin:34px 0 10px -28px;padding-left:28px;background:linear-gradient(90deg,var(--phuong) 0 12px,transparent 12px) no-repeat left center/12px 3px}
+.month span{background:var(--paper);padding:0 10px 0 6px;margin-left:12px}
+.card{display:grid;grid-template-columns:150px 1fr;gap:16px;width:100%;text-align:left;background:var(--white);border:1px solid var(--rule);border-left:5px solid var(--ink);border-radius:4px 16px 4px 4px;padding:12px 12px 42px;margin:0;cursor:pointer}
+.card:hover{border-left-color:var(--phuong);transform:translateX(3px)}
+.thumb{aspect-ratio:16/10;background:var(--rule) center/cover;border-radius:3px;display:grid;place-items:center;color:var(--muted);font:1rem "Patrick Hand"}
+.card h3{margin:0;font-size:1.1rem;line-height:1.3}
+.card time{font-size:.85rem;color:var(--phuong);font-weight:600}
+.card p{margin:4px 0 0;color:var(--muted);font-size:.92rem;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.item{position:relative;margin:0 0 16px}
+.heart{border:1px solid var(--rule);background:var(--white);border-radius:999px;padding:2px 12px;cursor:pointer;font-weight:600;color:var(--muted)}
+.heart.on{color:var(--phuong);border-color:var(--phuong)}
+.item .heart{position:absolute;right:10px;bottom:10px}
+.dlg .heart{margin-left:10px}
+.tag{display:inline-block;background:#FFE9A8;color:#6b4e00;font-size:.75rem;font-weight:600;padding:0 8px;border-radius:999px;margin-left:6px}
+.c.pend{border-style:dashed;background:#FFFBEA}
+.badge{background:var(--phuong);color:#fff;border-radius:999px;padding:0 8px;margin-left:6px;font-size:.8rem}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;margin-bottom:10px}
+.ph{margin:0;background:var(--white);border:1px solid var(--rule);border-radius:4px 12px 4px 12px;overflow:hidden}
+.ph.pend{border-style:dashed;background:#FFFBEA}
+.ph img{display:block;width:100%;aspect-ratio:4/3;object-fit:cover}
+.ph figcaption{padding:6px 10px;font-size:.9rem}
+.ph p{margin:2px 0 4px;overflow-wrap:anywhere}
+.fut .card{border-left-color:var(--phuong);background:#FFFBEA}
+.now{display:inline-block;margin:22px 0 10px -44px;background:var(--phuong);color:#fff;font:1.2rem "Patrick Hand",cursive;padding:1px 16px 1px 12px;border-radius:0 999px 999px 0}
+.card.exam{background:var(--ink);color:#fff;border-color:var(--ink);border-left-color:var(--phuong);cursor:default;padding-bottom:12px}
+.card.exam:hover{transform:none}
+.card.exam p{color:var(--rule);display:block}
+.card.exam time{color:#FFB4AA}
+.card.exam .thumb{background:#2c3f66;color:#fff}
+.up-h{font:1.7rem "Patrick Hand",cursive;margin:0 0 10px;background:var(--paper);display:inline-block;padding-right:10px}
+.soon{margin-left:8px;background:var(--phuong);color:#fff;border-radius:999px;padding:0 10px;font-size:.8rem}
+.note{background:var(--white);border:2px dashed var(--rule);padding:18px;border-radius:8px;margin-left:-4px}
+dialog{width:min(680px,94vw);max-height:92vh;border:2px solid var(--ink);border-radius:6px 22px 6px 22px;padding:0;background:var(--paper);color:var(--ink)}
+dialog::backdrop{background:rgba(27,42,74,.6)}
+.dlg{padding:22px}
+.dlg h2{margin:0 28px 4px 0;font-size:1.5rem;line-height:1.25}
+.x{position:absolute;right:12px;top:10px;border:0;background:none;font-size:1.8rem;cursor:pointer;line-height:1}
+.video{aspect-ratio:16/9;width:100%;border:0;border-radius:6px;margin:14px 0;background:#000}
+.desc{white-space:pre-wrap}
+.cm{border-top:2px dashed var(--rule);margin-top:20px;padding-top:12px}
+.cm h3{font:1.3rem "Patrick Hand"; margin:0 0 8px}
+.c{background:var(--white);border:1px solid var(--rule);border-radius:4px 12px 4px 12px;padding:8px 12px;margin-bottom:8px}
+.c b{font-size:.92rem}.c small{color:var(--muted);margin-left:6px}
+.c p{margin:2px 0 0;white-space:pre-wrap;overflow-wrap:anywhere}
+label{display:block;font-weight:600;font-size:.9rem;margin:12px 0 4px}
+input,textarea{width:100%;border:2px solid var(--ink);background:var(--white);border-radius:4px;padding:8px 10px}
+textarea{min-height:80px;resize:vertical}
+.tabs{display:flex;gap:8px;margin:6px 0 4px}
+.tabs .btn[aria-pressed=true]{background:var(--ink);color:var(--white)}
+.msg{min-height:1.4em;margin:10px 0 0;color:var(--phuong);font-weight:600}
+.msg.ok{color:#1d7a3f}
+footer{padding:24px 0 40px;color:var(--muted);text-align:center;background:var(--paper)}
+@media(max-width:560px){.card{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:no-preference){.card{transition:transform .15s,border-color .15s}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand" id="brand"></div>
+    <div class="actions">
+      <span class="who" id="who"></span>
+      <button class="btn" id="btnMod" hidden>Chờ duyệt</button>
+      <button class="btn" id="btnNew" hidden>Đăng sự kiện</button>
+      <button class="btn main" id="btnAuth">Đăng nhập</button>
+    </div>
+  </header>
+
+  <section class="hero">
+    <h1 id="title"></h1><br>
+    <p id="sub"></p><br>
+    <div class="count" id="count" hidden></div>
+  </section>
+
+  <main class="timeline" id="timeline" aria-live="polite"></main>
+  <footer>Làm bằng tình cảm của cả lớp, để mai này còn nhớ.</footer>
+</div>
+
+<dialog id="dAuth"><div class="dlg">
+  <button class="x" data-close aria-label="Đóng">×</button>
+  <div class="tabs">
+    <button class="btn" id="tLogin" aria-pressed="true">Đăng nhập</button>
+    <button class="btn" id="tReg" aria-pressed="false">Tạo tài khoản</button>
+  </div>
+  <div id="fName" hidden><label for="aName">Họ và tên</label><input id="aName" autocomplete="name"></div>
+  <label for="aEmail">Email</label><input id="aEmail" type="email" autocomplete="email">
+  <label for="aPass">Mật khẩu (từ 6 ký tự)</label><input id="aPass" type="password" autocomplete="current-password">
+  <div id="fCode" hidden><label for="aCode">Mã lớp (hỏi cán bộ lớp)</label><input id="aCode"></div>
+  <p class="msg" id="aMsg" role="status"></p>
+  <button class="btn main" id="aGo">Đăng nhập</button>
+</div></dialog>
+
+<dialog id="dNew"><div class="dlg">
+  <button class="x" data-close aria-label="Đóng">×</button>
+  <h2>Đăng sự kiện mới</h2>
+  <label for="nTitle">Tên sự kiện</label><input id="nTitle">
+  <label for="nDate">Ngày diễn ra (ngày sắp tới sẽ có nhãn đếm ngược trên dòng thời gian)</label><input id="nDate" type="date">
+  <label for="nYt">Link YouTube (không bắt buộc)</label><input id="nYt" placeholder="https://youtu.be/...">
+  <label for="nDesc">Mô tả</label><textarea id="nDesc"></textarea>
+  <p class="msg" id="nMsg" role="status"></p>
+  <button class="btn main" id="nGo">Đăng sự kiện</button>
+</div></dialog>
+
+<dialog id="dPost"><div class="dlg" id="postBody"></div></dialog>
+<dialog id="dMod"><div class="dlg"><button class="x" data-close aria-label="Đóng">×</button><h2>Chờ duyệt</h2><div id="modList" style="margin-top:12px"></div></div></dialog>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script>
+/* ====== CẤU HÌNH: sửa phần này ====== */
+const CONFIG = {
+  SUPABASE_URL: "",        // dán Project URL của Supabase
+  SUPABASE_ANON_KEY: "",   // dán anon public key
+  CLASS_NAME: "12A17",
+  SCHOOL_YEAR: "2026–2027",
+  CLASS_CODE: "12A17-2027", // mã lớp để đăng ký
+  EXAM_DATE: "2027-06-12"  // ngày thi tốt nghiệp (sửa theo lịch của Bộ)
+};
+/* ==================================== */
+
+const demo = !CONFIG.SUPABASE_URL || !CONFIG.SUPABASE_ANON_KEY;
+const sb = demo ? null : supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
+const SAMPLE = [
+  {id:"1",title:"Lễ khai giảng năm học cuối cấp",event_date:"2026-09-05",youtube_url:"",description:"Ngày đầu tiên của năm lớp 12. Cả lớp mặc áo dài trắng, chụp tấm ảnh tập thể đầu tiên."},
+  {id:"2",title:"Trung thu của lớp",event_date:"2026-09-25",youtube_url:"",description:"Phá cỗ, múa lân và văn nghệ tự biên tự diễn."},
+  {id:"3",title:"Ngày Nhà giáo Việt Nam 20/11",event_date:"2026-11-20",youtube_url:"",description:"Cả lớp gửi lời cảm ơn đến thầy cô."},
+  {id:"4",title:"Tiệc tất niên của lớp",event_date:"2027-01-30",youtube_url:"",description:"Mỗi bạn mang một món, cùng nhau khép lại năm cũ."},
+  {id:"5",title:"Ngày 8/3 của lớp",event_date:"2027-03-08",youtube_url:"",description:"Các bạn nam chuẩn bị bất ngờ cho các bạn nữ."},
+  {id:"6",title:"Chụp ảnh kỷ yếu",event_date:"2027-03-14",youtube_url:"",description:"Áo dài trắng, hoa phượng và thật nhiều nụ cười."},
+  {id:"7",title:"Lễ tri ân và bế giảng",event_date:"2027-05-22",youtube_url:"",description:"Buổi chia tay mái trường, nơi mọi người viết lưu bút cho nhau."}
+];
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const ytId = u => (String(u||"").match(/(?:youtu\.be\/|v=|embed\/|shorts\/)([\w-]{11})/)||[])[1];
+const fmt = d => d ? new Date(d + "T00:00").toLocaleDateString("vi-VN") : "";
+let user = null, profile = null, posts = [], mode = "login";
+
+document.title = "Nhật ký " + CONFIG.CLASS_NAME;
+$("brand").textContent = "Lớp " + CONFIG.CLASS_NAME;
+$("title").textContent = "Nhật ký " + CONFIG.CLASS_NAME;
+$("sub").textContent = "Năm học cuối cấp " + CONFIG.SCHOOL_YEAR + ": mỗi sự kiện là một trang lưu bút.";
+const left = Math.ceil((new Date(CONFIG.EXAM_DATE + "T00:00") - Date.now()) / 864e5);
+if (left > 0) { $("count").hidden = false; $("count").innerHTML = "Còn <b>" + left + "</b> ngày đến kỳ thi tốt nghiệp. Cùng giữ lại thật nhiều kỷ niệm nhé!"; }
+
+document.querySelectorAll("[data-close]").forEach(b => b.onclick = () => b.closest("dialog").close());
+
+/* ---------- Ảnh của lớp ---------- */
+const BUCKET = "class-photos";
+const phUrl = path => sb.storage.from(BUCKET).getPublicUrl(path).data.publicUrl;
+function shrink(file, max = 1400) {
+  return new Promise((ok, no) => {
+    const img = new Image(), u = URL.createObjectURL(file);
+    img.onload = () => {
+      const k = Math.min(1, max / Math.max(img.width, img.height));
+      const c = document.createElement("canvas"); c.width = Math.round(img.width * k); c.height = Math.round(img.height * k);
+      c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
+      URL.revokeObjectURL(u); c.toBlob(b => b ? ok(b) : no(new Error("Không nén được ảnh.")), "image/jpeg", .82);
+    };
+    img.onerror = () => no(new Error("Chưa đọc được ảnh, hãy chọn ảnh JPG hoặc PNG.")); img.src = u;
+  });
+}
+function phHtml(x, extra) {
+  const mine = user && x.user_id === user.id, u = phUrl(x.image_path);
+  return '<figure class="ph' + (x.approved ? "" : " pend") + '"><a href="' + u + '" target="_blank" rel="noopener"><img src="' + u + '" alt="' + esc(x.caption || "Ảnh của lớp") + '" loading="lazy"></a><figcaption><b>' + esc(x.profiles?.full_name || "Bạn lớp mình") + "</b>" +
+    (x.approved ? "" : '<span class="tag">' + (mine ? "Đang chờ admin duyệt" : "Chờ duyệt") + "</span>") + (extra || "") + (x.caption ? "<p>" + esc(x.caption) + "</p>" : "") +
+    (isAdmin() && !x.approved ? ' <button class="btn small" data-pok="' + x.id + '">Duyệt</button>' : "") +
+    (mine || isAdmin() ? ' <button class="btn small" data-pdel="' + x.id + '" data-path="' + esc(x.image_path) + '">Xóa</button>' : "") + "</figcaption></figure>";
+}
+function bindPh(root, reload) {
+  root.querySelectorAll("[data-pok]").forEach(b => b.onclick = async () => { await sb.from("photos").update({ approved: true }).eq("id", b.dataset.pok); reload(); countPending(); });
+  root.querySelectorAll("[data-pdel]").forEach(b => b.onclick = async () => { await sb.from("photos").delete().eq("id", b.dataset.pdel); await sb.storage.from(BUCKET).remove([b.dataset.path]); reload(); countPending(); });
+}
+function photoSection() {
+  return '<section class="cm"><h3>Ảnh của lớp</h3><div class="grid" id="pList"></div>' + (user ?
+    '<label for="pFile">Thêm ảnh kỷ niệm</label><input id="pFile" type="file" accept="image/*"><label for="pCap">Dòng trạng thái</label><input id="pCap" maxlength="200" placeholder="Ví dụ: Cả lớp cười không nhặt được mồm"><p class="msg" id="pMsg" role="status"></p><button class="btn main" id="pGo">Gửi ảnh</button>' : '<p class="note">Hãy đăng nhập để đăng ảnh.</p>') + "</section>";
+}
+function setupPhotos(p) {
+  const load = async () => {
+    if (demo) { $("pList").innerHTML = '<p class="who">Chế độ xem thử: chưa kết nối Supabase nên chưa có ảnh.</p>'; return; }
+    const { data } = await sb.from("photos").select("*, profiles(full_name)").eq("post_id", p.id).order("created_at");
+    $("pList").innerHTML = (data || []).map(x => phHtml(x)).join("") || '<p class="who">Chưa có ảnh nào. Bạn thêm tấm đầu tiên nhé!</p>';
+    bindPh($("pList"), load);
+  };
+  load();
+  if (!$("pGo")) return;
+  $("pGo").onclick = async () => {
+    const m = (t, ok) => { $("pMsg").textContent = t; $("pMsg").className = "msg" + (ok ? " ok" : ""); };
+    const f = $("pFile").files[0]; if (!f) return m("Hãy chọn một tấm ảnh.");
+    if (demo) return m("Cần kết nối Supabase để đăng ảnh.");
+    $("pGo").disabled = true; m("Đang tải ảnh lên...", true);
+    try {
+      const blob = await shrink(f), path = user.id + "/" + crypto.randomUUID() + ".jpg";
+      const up = await sb.storage.from(BUCKET).upload(path, blob, { contentType: "image/jpeg" });
+      if (up.error) throw up.error;
+      const { error } = await sb.from("photos").insert({ post_id: p.id, user_id: user.id, image_path: path, caption: $("pCap").value.trim(), approved: isAdmin() });
+      if (error) { await sb.storage.from(BUCKET).remove([path]); throw error; }
+      $("pFile").value = ""; $("pCap").value = "";
+      m(isAdmin() ? "Đã đăng ảnh." : "Đã gửi! Ảnh sẽ hiện với cả lớp sau khi admin duyệt.", true);
+      load(); countPending();
+    } catch (e) { m("Chưa gửi được ảnh: " + (e.message || "hãy thử ảnh JPG hoặc PNG.")); }
+    $("pGo").disabled = false;
+  };
+}
+
+/* ---------- Thả tim ---------- */
+let likes = {};
+const heartBtn = id => '<button class="heart" data-like="' + esc(id) + '" aria-label="Thả tim"></button>';
+function paint() {
+  document.querySelectorAll("[data-like]").forEach(b => {
+    const l = likes[b.dataset.like] || { n: 0, mine: false };
+    b.classList.toggle("on", l.mine); b.setAttribute("aria-pressed", l.mine);
+    b.textContent = (l.mine ? "♥ " : "♡ ") + l.n;
+  });
+}
+function bindHeart(b) { b.onclick = e => { e.stopPropagation(); toggleLike(b.dataset.like); }; }
+async function loadLikes() {
+  if (demo) { paint(); return; }
+  likes = {};
+  const { data } = await sb.from("likes").select("post_id,user_id");
+  (data || []).forEach(r => { const l = likes[r.post_id] ||= { n: 0, mine: false }; l.n++; if (user && r.user_id === user.id) l.mine = true; });
+  paint();
+}
+async function toggleLike(id) {
+  if (!demo && !user) { setMode("login"); $("aMsg").textContent = "Hãy đăng nhập để thả tim nhé."; $("dAuth").showModal(); return; }
+  const l = likes[id] ||= { n: 0, mine: false };
+  const was = l.mine; l.mine = !was; l.n += was ? -1 : 1; paint();
+  if (demo) return;
+  const { error } = was ? await sb.from("likes").delete().eq("post_id", id).eq("user_id", user.id) : await sb.from("likes").insert({ post_id: id, user_id: user.id });
+  if (error) loadLikes();
+}
+
+/* ---------- Duyệt bình luận ---------- */
+const isAdmin = () => profile?.role === "admin";
+function cmHtml(c, extra) {
+  const mine = user && c.user_id === user.id;
+  return '<div class="c' + (c.approved ? "" : " pend") + '"><b>' + esc(c.profiles?.full_name || "Bạn lớp mình") + "</b><small>" + new Date(c.created_at).toLocaleString("vi-VN") + "</small>" +
+    (c.approved ? "" : '<span class="tag">' + (mine ? "Đang chờ admin duyệt" : "Chờ duyệt") + "</span>") + (extra || "") +
+    (isAdmin() && !c.approved ? ' <button class="btn small" data-ok="' + c.id + '">Duyệt</button>' : "") +
+    (mine || isAdmin() ? ' <button class="btn small" data-del="' + c.id + '">Xóa</button>' : "") + "<p>" + esc(c.content) + "</p></div>";
+}
+function bindCm(root, reload) {
+  root.querySelectorAll("[data-ok]").forEach(b => b.onclick = async () => { await sb.from("comments").update({ approved: true }).eq("id", b.dataset.ok); reload(); countPending(); });
+  root.querySelectorAll("[data-del]").forEach(b => b.onclick = async () => { await sb.from("comments").delete().eq("id", b.dataset.del); reload(); countPending(); });
+}
+async function countPending() {
+  if (demo || !isAdmin()) { $("btnMod").hidden = true; return; }
+  const q = t => sb.from(t).select("id", { count: "exact", head: true }).eq("approved", false);
+  const [a, b] = await Promise.all([q("comments"), q("photos")]), count = (a.count || 0) + (b.count || 0);
+  $("btnMod").hidden = false; $("btnMod").innerHTML = "Chờ duyệt" + (count ? '<span class="badge">' + count + "</span>" : "");
+}
+async function loadMod() {
+  const sel = t => sb.from(t).select("*, profiles(full_name), posts(title)").eq("approved", false).order("created_at");
+  const [c, ph] = await Promise.all([sel("comments"), sel("photos")]);
+  const where = x => "<small>trong “" + esc(x.posts?.title) + "”</small>";
+  $("modList").innerHTML = (ph.data?.length ? '<div class="grid">' + ph.data.map(x => phHtml(x, where(x))).join("") + "</div>" : "") + (c.data || []).map(x => cmHtml(x, where(x))).join("") || '<p class="who">Không có gì đang chờ duyệt.</p>';
+  bindCm($("modList"), loadMod); bindPh($("modList"), loadMod);
+}
+$("btnMod").onclick = () => { loadMod(); $("dMod").showModal(); };
+
+/* ---------- Timeline ---------- */
+const daysTo = (d, today) => Math.round((new Date(d + "T00:00") - new Date(today + "T00:00")) / 864e5);
+const soonTag = n => '<span class="soon">' + (n === 0 ? "Hôm nay" : n === 1 ? "Ngày mai" : "Còn " + n + " ngày") + "</span>";
+function cardHtml(p, tag) {
+  const id = ytId(p.youtube_url);
+  const th = id ? 'style="background-image:url(https://i.ytimg.com/vi/' + id + '/mqdefault.jpg)"' : "";
+  return '<div class="item' + (tag ? " fut" : "") + '"><button class="card" data-id="' + esc(p.id) + '"><div class="thumb" ' + th + ">" + (id ? "" : tag ? "Sắp diễn ra" : "Chưa có video") + '</div><div><time>' + fmt(p.event_date) + (tag || "") + "</time><h3>" + esc(p.title) + "</h3><p>" + esc(p.description) + "</p></div></button>" + heartBtn(p.id) + "</div>";
+}
+function examHtml(p, tag) {
+  return '<div class="item"><div class="card exam"><div class="thumb">Về đích</div><div><time>' + fmt(p.event_date) + (tag || "") + "</time><h3>Kỳ thi tốt nghiệp THPT</h3><p>Điểm đến của hành trình 12 năm đi học. Cả lớp cùng về đích nhé!</p></div></div></div>";
+}
+function render() {
+  const t = $("timeline");
+  if (!posts.length) { t.innerHTML = '<div class="note">Chưa có sự kiện nào. Khi cán bộ lớp đăng sự kiện đầu tiên, nó sẽ xuất hiện ở đây.</div>'; return; }
+  const today = new Date().toLocaleDateString("sv-SE");
+  const items = posts.slice().sort((a, b) => (a.event_date || "9").localeCompare(b.event_date || "9"));
+  items.push({ exam: true, event_date: CONFIG.EXAM_DATE });
+  const now = '<div class="now">Hôm nay, ' + fmt(today) + "</div>";
+  let html = "", cur = null, marked = false;
+  items.forEach(p => {
+    const future = p.event_date >= today;
+    if (!marked && future) { marked = true; html += now; }
+    const m = (p.event_date || "").slice(0, 7);
+    if (m !== cur) { cur = m; const [y, mo] = m.split("-"); html += '<h2 class="month"><span>' + (m ? "Tháng " + Number(mo) + "/" + y : "Chưa rõ ngày") + "</span></h2>"; }
+    const tag = future ? soonTag(daysTo(p.event_date, today)) : "";
+    html += p.exam ? examHtml(p, tag) : cardHtml(p, tag);
+  });
+  if (!marked) html += now;
+  t.innerHTML = html;
+  t.querySelectorAll("button.card").forEach(c => c.onclick = () => openPost(c.dataset.id));
+  t.querySelectorAll(".heart").forEach(bindHeart);
+  paint();
+}
+async function loadPosts() {
+  if (demo) posts = SAMPLE;
+  else { const { data } = await sb.from("posts").select("*").order("event_date", { ascending: true }); posts = data || []; }
+  render(); loadLikes();
+}
+
+/* ---------- Chi tiết + bình luận ---------- */
+async function openPost(id) {
+  const p = posts.find(x => String(x.id) === String(id)); if (!p) return;
+  const vid = ytId(p.youtube_url);
+  $("postBody").innerHTML = '<button class="x" id="pClose" aria-label="Đóng">×</button><h2>' + esc(p.title) + '</h2><time style="color:var(--phuong);font-weight:600">' + fmt(p.event_date) + "</time> " + heartBtn(p.id) +
+    (vid ? '<iframe class="video" src="https://www.youtube-nocookie.com/embed/' + vid + '" title="' + esc(p.title) + '" allowfullscreen loading="lazy"></iframe>' : "") +
+    '<p class="desc">' + esc(p.description) + '</p>' + photoSection() + '<section class="cm"><h3>Bình luận</h3><div id="cList"></div>' +
+    (user ? '<label for="cText">Viết đôi lời cho kỷ niệm này</label><textarea id="cText"></textarea><p class="msg" id="cMsg"></p><button class="btn main" id="cGo">Gửi bình luận</button>' : '<p class="note">Hãy đăng nhập để bình luận.</p>') + "</section>";
+  $("postBody").querySelectorAll(".heart").forEach(bindHeart); paint();
+  $("pClose").onclick = () => $("dPost").close();
+  $("dPost").showModal();
+  const load = async () => {
+    if (demo) { $("cList").innerHTML = '<p class="who">Chế độ xem thử: chưa kết nối Supabase nên chưa có bình luận.</p>'; return; }
+    const { data } = await sb.from("comments").select("*, profiles(full_name)").eq("post_id", p.id).order("created_at");
+    $("cList").innerHTML = (data || []).map(c => cmHtml(c)).join("") || '<p class="who">Chưa có bình luận nào. Bạn mở đầu nhé!</p>';
+    bindCm($("cList"), load);
+  };
+  load(); setupPhotos(p);
+  if (user && $("cGo")) $("cGo").onclick = async () => {
+    $("cMsg").className = "msg"; const v = $("cText").value.trim(); if (!v) { $("cMsg").textContent = "Hãy nhập nội dung bình luận."; return; }
+    if (demo) { $("cMsg").textContent = "Cần kết nối Supabase để bình luận."; return; }
+    const { error } = await sb.from("comments").insert({ post_id: p.id, user_id: user.id, content: v, approved: isAdmin() });
+    if (error) { $("cMsg").textContent = "Chưa gửi được: " + error.message; return; }
+    $("cText").value = ""; $("cMsg").className = "msg ok";
+    $("cMsg").textContent = isAdmin() ? "Đã đăng bình luận." : "Đã gửi! Bình luận sẽ hiện với cả lớp sau khi admin duyệt.";
+    load(); countPending();
+  };
+}
+
+/* ---------- Đăng nhập / đăng ký ---------- */
+function setMode(m) {
+  mode = m;
+  $("tLogin").setAttribute("aria-pressed", m === "login"); $("tReg").setAttribute("aria-pressed", m === "reg");
+  $("fName").hidden = $("fCode").hidden = m === "login";
+  $("aGo").textContent = m === "login" ? "Đăng nhập" : "Tạo tài khoản";
+  $("aMsg").textContent = ""; $("aMsg").className = "msg";
+}
+$("tLogin").onclick = () => setMode("login"); $("tReg").onclick = () => setMode("reg");
+$("btnAuth").onclick = async () => {
+  if (user) { await sb.auth.signOut(); return; }
+  setMode("login"); $("dAuth").showModal();
+};
+$("aGo").onclick = async () => {
+  const msg = (t, ok) => { $("aMsg").textContent = t; $("aMsg").className = "msg" + (ok ? " ok" : ""); };
+  if (demo) return msg("Cần dán thông tin Supabase vào CONFIG trước khi dùng tài khoản.");
+  const email = $("aEmail").value.trim(), pass = $("aPass").value;
+  if (!email || pass.length < 6) return msg("Nhập email và mật khẩu từ 6 ký tự.");
+  if (mode === "login") {
+    const { error } = await sb.auth.signInWithPassword({ email, password: pass });
+    return error ? msg("Email hoặc mật khẩu chưa đúng.") : $("dAuth").close();
+  }
+  const name = $("aName").value.trim();
+  if (!name) return msg("Nhập họ và tên của bạn.");
+  if ($("aCode").value.trim() !== CONFIG.CLASS_CODE) return msg("Mã lớp chưa đúng. Hãy hỏi cán bộ lớp.");
+  const { data, error } = await sb.auth.signUp({ email, password: pass, options: { data: { full_name: name } } });
+  if (error) return msg("Chưa tạo được tài khoản: " + error.message);
+  if (data.session) $("dAuth").close(); else msg("Đã tạo xong. Hãy mở email để xác nhận rồi đăng nhập.", true);
+};
+
+/* ---------- Đăng sự kiện (admin) ---------- */
+$("btnNew").onclick = () => { $("nMsg").textContent = ""; $("dNew").showModal(); };
+$("nGo").onclick = async () => {
+  const title = $("nTitle").value.trim(); if (!title) { $("nMsg").textContent = "Nhập tên sự kiện."; return; }
+  const { error } = await sb.from("posts").insert({ title, event_date: $("nDate").value || null, youtube_url: $("nYt").value.trim() || null, description: $("nDesc").value.trim() });
+  if (error) { $("nMsg").textContent = "Chưa đăng được: " + error.message; return; }
+  ["nTitle", "nDate", "nYt", "nDesc"].forEach(i => $(i).value = ""); $("dNew").close(); loadPosts();
+};
+
+/* ---------- Trạng thái đăng nhập ---------- */
+async function refreshUser(session) {
+  user = session?.user || null; profile = null;
+  if (user) { const { data } = await sb.from("profiles").select("*").eq("id", user.id).maybeSingle(); profile = data; }
+  $("who").textContent = user ? "Chào " + (profile?.full_name || user.email) : (demo ? "Chế độ xem thử" : "Đăng nhập để thả tim và bình luận");
+  $("btnAuth").textContent = user ? "Đăng xuất" : "Đăng nhập";
+  $("btnNew").hidden = !isAdmin(); countPending();
+  loadPosts();
+}
+if (demo) refreshUser(null);
+else { sb.auth.onAuthStateChange((_e, s) => refreshUser(s)); sb.auth.getSession().then(({ data }) => refreshUser(data.session)); }
+</script>
+</body>
+</html>
