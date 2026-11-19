@@ -92,6 +92,7 @@ footer{padding:24px 0 40px;color:var(--muted);text-align:center;background:var(-
     <div class="brand" id="brand"></div>
     <div class="actions">
       <span class="who" id="who"></span>
+      <button class="btn" id="btnMem" hidden>Thành viên</button>
       <button class="btn" id="btnMod" hidden>Chờ duyệt</button>
       <button class="btn" id="btnNew" hidden>Đăng sự kiện</button>
       <button class="btn main" id="btnAuth">Đăng nhập</button>
@@ -134,14 +135,15 @@ footer{padding:24px 0 40px;color:var(--muted);text-align:center;background:var(-
 </div></dialog>
 
 <dialog id="dPost"><div class="dlg" id="postBody"></div></dialog>
+<dialog id="dMem"><div class="dlg"><button class="x" data-close aria-label="Đóng">×</button><h2>Thành viên lớp</h2><p class="who" id="memCount"></p><div id="memList" style="margin-top:12px"></div></div></dialog>
 <dialog id="dMod"><div class="dlg"><button class="x" data-close aria-label="Đóng">×</button><h2>Chờ duyệt</h2><div id="modList" style="margin-top:12px"></div></div></dialog>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script>
 /* ====== CẤU HÌNH: sửa phần này ====== */
 const CONFIG = {
-  SUPABASE_URL: "",        // dán Project URL của Supabase
-  SUPABASE_ANON_KEY: "",   // dán anon public key
+  SUPABASE_URL: "https://aidkprxrdcdmrdhlwayt.supabase.co",        // dán Project URL của Supabase
+  SUPABASE_ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFpZGtwcnhyZGNkbXJkaGx3YXl0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTUwNzU4MzgsImV4cCI6MjExMDY1MTgzOH0.d7ccofKJMs4P3YqnkVURNO-Noi9EDRgiW__mXauX_Ug",   // dán anon public key
   CLASS_NAME: "12A17",
   SCHOOL_YEAR: "2026–2027",
   CLASS_CODE: "12A17-2027", // mã lớp để đăng ký
@@ -288,6 +290,26 @@ async function loadMod() {
 }
 $("btnMod").onclick = () => { loadMod(); $("dMod").showModal(); };
 
+/* ---------- Thành viên (admin) ---------- */
+async function loadMem() {
+  const { data } = await sb.from("profiles").select("*").order("created_at");
+  $("memCount").textContent = (data || []).length + " thành viên đã đăng ký";
+  $("memList").innerHTML = (data || []).map(m => {
+    const me = m.id === user.id, admin = m.role === "admin";
+    return '<div class="c"><b>' + esc(m.full_name) + "</b>" + (admin ? '<span class="tag">Admin</span>' : "") + (m.blocked ? '<span class="tag">Đã khóa</span>' : "") +
+      "<small>" + (me ? "(bạn) " : "") + fmt((m.created_at || "").slice(0, 10)) + "</small>" +
+      (me ? "" : ' <button class="btn small" data-role="' + m.id + '" data-to="' + (admin ? "member" : "admin") + '">' + (admin ? "Bỏ admin" : "Cấp admin") + '</button> <button class="btn small" data-blk="' + m.id + '" data-to="' + (m.blocked ? "0" : "1") + '">' + (m.blocked ? "Mở khóa" : "Khóa") + "</button>") + "</div>";
+  }).join("");
+  $("memList").querySelectorAll("[data-role]").forEach(b => b.onclick = async () => {
+    if (!confirm(b.dataset.to === "admin" ? "Cấp quyền admin cho bạn này?" : "Bỏ quyền admin của bạn này?")) return;
+    await sb.from("profiles").update({ role: b.dataset.to }).eq("id", b.dataset.role); loadMem();
+  });
+  $("memList").querySelectorAll("[data-blk]").forEach(b => b.onclick = async () => {
+    await sb.from("profiles").update({ blocked: b.dataset.to === "1" }).eq("id", b.dataset.blk); loadMem();
+  });
+}
+$("btnMem").onclick = () => { loadMem(); $("dMem").showModal(); };
+
 /* ---------- Timeline ---------- */
 const daysTo = (d, today) => Math.round((new Date(d + "T00:00") - new Date(today + "T00:00")) / 864e5);
 const soonTag = n => '<span class="soon">' + (n === 0 ? "Hôm nay" : n === 1 ? "Ngày mai" : "Còn " + n + " ngày") + "</span>";
@@ -401,7 +423,7 @@ async function refreshUser(session) {
   if (user) { const { data } = await sb.from("profiles").select("*").eq("id", user.id).maybeSingle(); profile = data; }
   $("who").textContent = user ? "Chào " + (profile?.full_name || user.email) : (demo ? "Chế độ xem thử" : "Đăng nhập để thả tim và bình luận");
   $("btnAuth").textContent = user ? "Đăng xuất" : "Đăng nhập";
-  $("btnNew").hidden = !isAdmin(); countPending();
+  $("btnNew").hidden = $("btnMem").hidden = !isAdmin(); countPending();
   loadPosts();
 }
 if (demo) refreshUser(null);
