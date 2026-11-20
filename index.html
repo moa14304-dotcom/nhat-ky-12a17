@@ -61,6 +61,15 @@ header.top{display:flex;justify-content:space-between;align-items:center;gap:12p
 .card.exam .thumb{background:#2c3f66;color:#fff}
 .up-h{font:1.7rem "Patrick Hand",cursive;margin:0 0 10px;background:var(--paper);display:inline-block;padding-right:10px}
 .soon{margin-left:8px;background:var(--phuong);color:#fff;border-radius:999px;padding:0 10px;font-size:.8rem}
+.ph a{cursor:zoom-in}
+#dLb{width:100vw;max-width:100vw;height:100vh;max-height:100vh;border:0;border-radius:0;background:rgba(10,16,30,.96);color:#fff;padding:0;margin:0}
+#dLb[open]{display:flex;align-items:center;justify-content:center}
+#lbImg{max-width:min(94vw,1200px);max-height:80vh;object-fit:contain;border-radius:4px}
+.lbx,.lbn{position:absolute;border:0;background:rgba(255,255,255,.16);color:#fff;cursor:pointer;border-radius:999px;line-height:1}
+.lbx{top:14px;right:14px;width:44px;height:44px;font-size:1.8rem}
+.lbn{top:50%;transform:translateY(-50%);width:48px;height:64px;font-size:2.4rem}
+.lbp{left:10px}.lbf{right:10px}
+.lbc{position:absolute;left:0;right:0;bottom:0;padding:16px 70px;text-align:center;background:linear-gradient(transparent,rgba(0,0,0,.75))}
 .note{background:var(--white);border:2px dashed var(--rule);padding:18px;border-radius:8px;margin-left:-4px}
 dialog{width:min(680px,94vw);max-height:92vh;border:2px solid var(--ink);border-radius:6px 22px 6px 22px;padding:0;background:var(--paper);color:var(--ink)}
 dialog::backdrop{background:rgba(27,42,74,.6)}
@@ -137,6 +146,7 @@ footer{padding:24px 0 40px;color:var(--muted);text-align:center;background:var(-
 </div></dialog>
 
 <dialog id="dPost"><div class="dlg" id="postBody"></div></dialog>
+<dialog id="dLb"><button class="lbx" id="lbClose" aria-label="Đóng">×</button><button class="lbn lbp" id="lbPrev" aria-label="Ảnh trước">‹</button><img id="lbImg" alt=""><button class="lbn lbf" id="lbNext" aria-label="Ảnh sau">›</button><div class="lbc" id="lbCap"></div></dialog>
 <dialog id="dMem"><div class="dlg"><button class="x" data-close aria-label="Đóng">×</button><h2>Thành viên lớp</h2><p class="who" id="memCount"></p><div id="memList" style="margin-top:12px"></div></div></dialog>
 <dialog id="dMod"><div class="dlg"><button class="x" data-close aria-label="Đóng">×</button><h2>Chờ duyệt</h2><div id="modList" style="margin-top:12px"></div></div></dialog>
 
@@ -155,15 +165,7 @@ const CONFIG = {
 
 const demo = !CONFIG.SUPABASE_URL || !CONFIG.SUPABASE_ANON_KEY;
 const sb = demo ? null : supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
-const SAMPLE = [
-  {id:"1",title:"Lễ khai giảng năm học cuối cấp",event_date:"2026-09-05",youtube_url:"",description:"Ngày đầu tiên của năm lớp 12. Cả lớp mặc áo dài trắng, chụp tấm ảnh tập thể đầu tiên."},
-  {id:"2",title:"Trung thu của lớp",event_date:"2026-09-25",youtube_url:"",description:"Phá cỗ, múa lân và văn nghệ tự biên tự diễn."},
-  {id:"3",title:"Ngày Nhà giáo Việt Nam 20/11",event_date:"2026-11-20",youtube_url:"",description:"Cả lớp gửi lời cảm ơn đến thầy cô."},
-  {id:"4",title:"Tiệc tất niên của lớp",event_date:"2027-01-30",youtube_url:"",description:"Mỗi bạn mang một món, cùng nhau khép lại năm cũ."},
-  {id:"5",title:"Ngày 8/3 của lớp",event_date:"2027-03-08",youtube_url:"",description:"Các bạn nam chuẩn bị bất ngờ cho các bạn nữ."},
-  {id:"6",title:"Chụp ảnh kỷ yếu",event_date:"2027-03-14",youtube_url:"",description:"Áo dài trắng, hoa phượng và thật nhiều nụ cười."},
-  {id:"7",title:"Lễ tri ân và bế giảng",event_date:"2027-05-22",youtube_url:"",description:"Buổi chia tay mái trường, nơi mọi người viết lưu bút cho nhau."}
-];
+const SAMPLE = []; // không còn sự kiện mẫu: chỉ hiện những gì admin đăng
 const $ = id => document.getElementById(id);
 const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const ytId = u => (String(u||"").match(/(?:youtu\.be\/|v=|embed\/|shorts\/)([\w-]{11})/)||[])[1];
@@ -204,7 +206,7 @@ function shrink(file, max = 1400) {
 }
 function phHtml(x, extra) {
   const mine = user && x.user_id === user.id, u = phUrl(x.image_path);
-  return '<figure class="ph' + (x.approved ? "" : " pend") + '"><a href="' + u + '" target="_blank" rel="noopener"><img src="' + u + '" alt="' + esc(x.caption || "Ảnh của lớp") + '" loading="lazy"></a><figcaption><b>' + esc((x.profiles && x.profiles.full_name) || "Bạn lớp mình") + "</b>" +
+  return '<figure class="ph' + (x.approved ? "" : " pend") + '"><a href="' + u + '" data-cap="' + esc(x.caption || "") + '" data-by="' + esc((x.profiles && x.profiles.full_name) || "Bạn lớp mình") + '" target="_blank" rel="noopener"><img src="' + u + '" alt="' + esc(x.caption || "Ảnh của lớp") + '" loading="lazy"></a><figcaption><b>' + esc((x.profiles && x.profiles.full_name) || "Bạn lớp mình") + "</b>" +
     (x.approved ? "" : '<span class="tag">' + (mine ? "Đang chờ admin duyệt" : "Chờ duyệt") + "</span>") + (extra || "") + (x.caption ? "<p>" + esc(x.caption) + "</p>" : "") +
     (isAdmin() && !x.approved ? ' <button class="btn small" data-pok="' + x.id + '">Duyệt</button>' : "") +
     (mine || isAdmin() ? ' <button class="btn small" data-pdel="' + x.id + '" data-path="' + esc(x.image_path) + '">Xóa</button>' : "") + "</figcaption></figure>";
@@ -244,6 +246,30 @@ function setupPhotos(p) {
     $("pGo").disabled = false;
   };
 }
+
+/* ---------- Xem ảnh lớn (nhiều ảnh) ---------- */
+let lb = { list: [], i: 0 };
+function lbShow(i) {
+  const n = lb.list.length; lb.i = (i + n) % n;
+  const a = lb.list[lb.i];
+  $("lbImg").src = a.href; $("lbImg").alt = a.dataset.cap || "Ảnh của lớp";
+  $("lbCap").innerHTML = "<b>" + esc(a.dataset.by) + "</b>" + (a.dataset.cap ? ": " + esc(a.dataset.cap) : "") + '<div style="color:#C9D6EA;font-size:.85rem">' + (lb.i + 1) + " / " + n + "</div>";
+  $("lbPrev").hidden = $("lbNext").hidden = n < 2;
+}
+document.addEventListener("click", e => {
+  const a = e.target.closest ? e.target.closest(".ph a") : null; if (!a) return;
+  e.preventDefault();
+  lb.list = Array.prototype.slice.call(a.closest(".grid").querySelectorAll(".ph a"));
+  lbShow(lb.list.indexOf(a)); $("dLb").showModal();
+});
+$("lbPrev").onclick = () => lbShow(lb.i - 1);
+$("lbNext").onclick = () => lbShow(lb.i + 1);
+$("lbClose").onclick = () => $("dLb").close();
+$("dLb").addEventListener("click", e => { if (e.target.id === "dLb") $("dLb").close(); });
+$("dLb").addEventListener("keydown", e => { if (e.key === "ArrowLeft") lbShow(lb.i - 1); if (e.key === "ArrowRight") lbShow(lb.i + 1); });
+let tx = 0;
+$("dLb").addEventListener("touchstart", e => { tx = e.touches[0].clientX; }, { passive: true });
+$("dLb").addEventListener("touchend", e => { const d = e.changedTouches[0].clientX - tx; if (Math.abs(d) > 50 && lb.list.length > 1) lbShow(lb.i + (d < 0 ? 1 : -1)); });
 
 /* ---------- Thả tim ---------- */
 let likes = {};
