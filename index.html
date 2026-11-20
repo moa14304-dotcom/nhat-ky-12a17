@@ -419,9 +419,9 @@ $("nGo").onclick = async () => {
 
 /* ---------- Trạng thái đăng nhập ---------- */
 async function refreshUser(session) {
-  user = session?.user || null; profile = null;
-  if (user) { const { data } = await sb.from("profiles").select("*").eq("id", user.id).maybeSingle(); profile = data; }
-  $("who").textContent = user ? "Chào " + (profile?.full_name || user.email) + (isAdmin() ? " (admin)" : profile ? "" : " (chưa có hồ sơ)") : (demo ? "Chế độ xem thử" : "Đăng nhập để thả tim và bình luận");
+  user = session?.user || null; profile = null; let perr = null;
+  if (user) { const rs = await sb.from("profiles").select("*").eq("id", user.id).maybeSingle(); profile = rs.data; perr = rs.error; }
+  $("who").textContent = user ? "Chào " + (profile?.full_name || user.email) + (isAdmin() ? " (admin)" : perr ? " (lỗi hồ sơ: " + perr.message + ")" : profile ? " (thành viên, chưa phải admin)" : " (chưa có hồ sơ)") : (demo ? "Chế độ xem thử" : "Đăng nhập để thả tim và bình luận");
   $("btnAuth").textContent = user ? "Đăng xuất" : "Đăng nhập";
   $("btnNew").hidden = $("btnMem").hidden = !isAdmin(); countPending();
   loadPosts();
