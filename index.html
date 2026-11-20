@@ -34,6 +34,7 @@ header.top{display:flex;justify-content:space-between;align-items:center;gap:12p
 .month span{background:var(--paper);padding:0 10px 0 6px;margin-left:12px}
 .card{display:block;width:100%;background:var(--white);border:1px solid var(--rule);border-left:5px solid var(--ink);border-radius:4px 16px 4px 4px;padding:14px 16px;margin:0}
 .card:hover{border-left-color:var(--phuong)}
+.bar,.btn{}
 .thumb{aspect-ratio:16/10;background:var(--rule) center/cover;border-radius:3px;display:grid;place-items:center;color:var(--muted);font:1rem "Patrick Hand"}
 .card h3{margin:0;font-size:1.15rem;line-height:1.3}
 .card time{font-size:.95rem;color:var(--phuong);font-weight:600}
@@ -135,6 +136,33 @@ footer{padding:28px 0 44px;color:var(--muted);text-align:center;background:var(-
 .fs{display:block;margin-top:8px;font-size:.85rem}
 @media(max-width:560px){.card.exam{grid-template-columns:1fr}.gal{aspect-ratio:4/3}.card{padding:12px}}
 @media(prefers-reduced-motion:no-preference){.card{transition:border-color .15s}.tile img{transition:transform .3s}.tile:hover img{transform:scale(1.05)}}
+
+.bar{position:sticky;top:0;z-index:30;background:rgba(245,248,252,.8);-webkit-backdrop-filter:blur(14px) saturate(1.5);backdrop-filter:blur(14px) saturate(1.5);border-bottom:1px solid rgba(201,214,234,.8)}
+header.top{padding:10px 0;min-height:60px}
+.btn{border:1.5px solid var(--ink);border-radius:999px;padding:6px 16px;box-shadow:0 1px 2px rgba(27,42,74,.08);transition:background .2s,color .2s,transform .15s,box-shadow .2s}
+.btn:hover{transform:translateY(-1px);box-shadow:0 6px 14px rgba(27,42,74,.16)}
+.btn:active{transform:scale(.97)}
+.card{box-shadow:0 1px 2px rgba(27,42,74,.06),0 6px 18px rgba(27,42,74,.06);transition:transform .25s,box-shadow .25s,border-color .2s}
+.card:not(.exam):hover{transform:translateY(-2px);box-shadow:0 12px 30px rgba(27,42,74,.14)}
+.heart:active{transform:scale(.9)}
+#coverBox.sk{min-height:clamp(200px,45vh,420px)}
+.skl{height:170px;margin:0 0 16px;background-color:#fff;border:1px solid var(--rule);border-left:5px solid var(--rule);border-radius:4px 16px 4px 4px}
+dialog::backdrop{background:rgba(15,23,42,.5);-webkit-backdrop-filter:blur(5px);backdrop-filter:blur(5px)}
+dialog{box-shadow:0 30px 80px rgba(10,16,30,.35)}
+@media(prefers-reduced-motion:no-preference){
+.tile img,.cvframe img{opacity:0;transition:opacity .5s,transform .6s cubic-bezier(.2,.7,.2,1)}
+.tile img.in,.cvframe img.in{opacity:1}
+.tile:hover img{transform:scale(1.06)}
+.skl,#coverBox.sk{background-image:linear-gradient(90deg,transparent,rgba(201,214,234,.6),transparent);background-size:200% 100%;animation:shim 1.4s linear infinite}
+.timeline.first .item{animation:rise .55s cubic-bezier(.2,.7,.2,1) both;animation-delay:calc(var(--i,0)*70ms)}
+dialog[open]{animation:pop .24s cubic-bezier(.2,.7,.2,1)}
+dialog[open]::backdrop{animation:fade .24s}
+.heart.on{animation:pop .3s}
+@keyframes shim{from{background-position:200% 0}to{background-position:-200% 0}}
+@keyframes rise{from{opacity:0;transform:translateY(14px)}}
+@keyframes pop{from{opacity:0;transform:scale(.96) translateY(6px)}}
+@keyframes fade{from{opacity:0}}
+}
 </style>
 <script>window.addEventListener("error",function(e){var t=document.getElementById("timeline");if(t&&e.message)t.innerHTML='<div class="note">Trang gặp lỗi: '+e.message+'. Hãy thử mở bằng Chrome hoặc Safari bản mới.</div>'});</script>
 </head>
@@ -143,6 +171,8 @@ footer{padding:28px 0 44px;color:var(--muted);text-align:center;background:var(-
   <div id="coverBox" hidden></div>
   <input type="file" id="coverFile" accept="image/*" hidden>
 
+</div>
+<div class="bar"><div class="wrap">
   <header class="top">
     <div class="brand" id="brand"></div>
     <div class="actions">
@@ -153,7 +183,7 @@ footer{padding:28px 0 44px;color:var(--muted);text-align:center;background:var(-
       <button class="btn main" id="btnAuth">Đăng nhập</button>
     </div>
   </header>
-</div>
+</div></div>
 <div id="sheet"><div class="wrap">
   <section class="hero">
     <h1 id="title"></h1><br>
@@ -161,7 +191,7 @@ footer{padding:28px 0 44px;color:var(--muted);text-align:center;background:var(-
     <div class="count" id="count" hidden></div>
   </section>
 
-  <main class="timeline" id="timeline" aria-live="polite"></main>
+  <main class="timeline" id="timeline" aria-live="polite"><div class="skl"></div><div class="skl"></div></main>
   <footer><div class="fq">Mai này mỗi người một ngả, nhưng những trang nhật ký này vẫn giữ cả lớp ở lại một thời áo trắng.</div><span class="fs" id="fSub"></span></footer>
 </div></div>
 
@@ -312,17 +342,21 @@ function setupPhotos(p) {
 }
 
 /* ---------- Ảnh bìa lớp ---------- */
-let coverUrl = "", coverPath = "";
+let coverUrl = "", coverPath = "", coverReady = demo;
 async function loadCover() {
-  const rs = await sb.from("site_settings").select("value").eq("key", "cover").maybeSingle();
-  if (rs.data && rs.data.value) { coverPath = rs.data.value; coverUrl = phUrl(coverPath); }
-  paintCover();
+  try {
+    const rs = await sb.from("site_settings").select("value").eq("key", "cover").maybeSingle();
+    if (rs.data && rs.data.value) { coverPath = rs.data.value; coverUrl = phUrl(coverPath); }
+  } finally { coverReady = true; paintCover(); }
 }
 function paintCover() {
-  const box = $("coverBox"), admin = isAdmin();
+  const box = $("coverBox"), admin = isAdmin(), sig = [coverReady, coverUrl, admin].join("|");
+  if (box.dataset.sig === sig) return; box.dataset.sig = sig;
+  if (!coverReady) { box.hidden = false; box.className = "cvframe sk"; box.innerHTML = ""; return; }
   if (!coverUrl && !admin) { box.hidden = true; return; }
-  box.hidden = false; box.className = coverUrl ? "cvframe" : "empty";
-  box.innerHTML = coverUrl ? '<img src="' + coverUrl + '" alt="Ảnh bìa lớp">' + (admin ? '<button class="btn cvbtn" id="cvBtn">Đổi ảnh bìa</button>' : "") : '<button class="cvadd" id="cvBtn">+ Thêm ảnh bìa lớp</button>';
+  box.hidden = false; box.className = coverUrl ? "cvframe sk" : "empty";
+  box.innerHTML = coverUrl ? '<img src="' + coverUrl + '" alt="Ảnh bìa lớp" onload="this.parentNode.classList.remove(\'sk\');this.classList.add(\'in\')" onerror="this.parentNode.classList.remove(\'sk\')">' + (admin ? '<button class="btn cvbtn" id="cvBtn">Đổi ảnh bìa</button>' : "") : '<button class="cvadd" id="cvBtn">+ Thêm ảnh bìa lớp</button>';
+  const im = box.querySelector("img"); if (im && im.complete) { box.classList.remove("sk"); im.classList.add("in"); }
   if ($("cvBtn")) $("cvBtn").onclick = () => $("coverFile").click();
 }
 $("coverFile").onchange = async () => {
@@ -337,7 +371,7 @@ $("coverFile").onchange = async () => {
     const old = coverPath; coverPath = path; coverUrl = phUrl(path);
     if (old) sb.storage.from(BUCKET).remove([old]);
   } catch (e) { say("Chưa đăng được ảnh bìa. " + (e.message || "")); }
-  $("coverFile").value = ""; paintCover();
+  $("coverFile").value = ""; $("coverBox").dataset.sig = ""; paintCover();
 };
 
 /* ---------- Xem ảnh lớn (nhiều ảnh) ---------- */
@@ -452,7 +486,7 @@ function galHtml(p, yt, tag) {
   if (!list.length) return '<div class="frame noimg">' + (tag ? "Sắp diễn ra, ảnh sẽ được cập nhật sau" : "Chưa có ảnh") + "</div>";
   const more = total - PV_PHOTOS, pid = esc(p.id);
   return '<div class="frame"><div class="gal n' + list.length + '">' + list.map((u, i) =>
-    '<button class="tile" data-open="' + pid + '" aria-label="Xem ảnh của sự kiện"><img src="' + u + '" alt="" loading="lazy">' +
+    '<button class="tile" data-open="' + pid + '" aria-label="Xem ảnh của sự kiện"><img src="' + u + '" alt="" loading="lazy" onload="this.classList.add(\'in\')">' +
     (i === PV_PHOTOS - 1 && more > 0 ? '<span class="more">+' + more + "</span>" : "") + "</button>").join("") + "</div></div>";
 }
 function cmPreview(p) {
@@ -466,7 +500,7 @@ function cmPreview(p) {
 }
 function cardHtml(p, tag) {
   const yt = ytId(p.youtube_url), pid = esc(p.id);
-  return '<div class="item' + (tag ? " fut" : "") + '"><article class="card"><div class="ch"><span class="dt"><time>' + fmt(p.event_date) + "</time>" + (tag || "") +
+  return '<div class="item' + (tag ? " fut" : "") + '" data-id="' + pid + '"><article class="card"><div class="ch"><span class="dt"><time>' + fmt(p.event_date) + "</time>" + (tag || "") +
     '</span><h3><button class="ttl" data-open="' + pid + '">' + esc(p.title) + "</button></h3></div>" +
     (p.description ? '<p class="dsc">' + esc(p.description) + "</p>" : "") +
     galHtml(p, yt, tag) + cmPreview(p) +
@@ -492,7 +526,12 @@ function render() {
     html += p.exam ? examHtml(p, tag) : cardHtml(p, tag);
   });
   if (!marked) html += now;
+  if (t._sig === html) return;
+  t._sig = html;
+  if (!t._shown) { t._shown = true; t.classList.add("first"); setTimeout(() => t.classList.remove("first"), 1400); }
   t.innerHTML = html;
+  t.querySelectorAll(".item").forEach((el, i) => el.style.setProperty("--i", Math.min(i, 8)));
+  t.querySelectorAll("img").forEach(i => { if (i.complete) i.classList.add("in"); });
   t.querySelectorAll("[data-open]").forEach(b => b.onclick = () => openPost(b.dataset.open, !!b.dataset.cm));
   t.querySelectorAll(".heart").forEach(bindHeart);
   paint();
@@ -600,7 +639,11 @@ $("nGo").onclick = async () => {
 };
 
 /* ---------- Trạng thái đăng nhập ---------- */
+let lastKey = null;
 async function refreshUser(session) {
+  const key = session && session.user ? session.user.id : "";
+  if (key === lastKey) return;
+  lastKey = key;
   user = (session && session.user) || null; profile = null; let perr = null;
   if (user) { const rs = await sb.from("profiles").select("*").eq("id", user.id).maybeSingle(); profile = rs.data; perr = rs.error; }
   $("who").textContent = user ? "Chào " + ((profile && profile.full_name) || user.email) + (isAdmin() ? " (admin)" : perr ? " (lỗi hồ sơ: " + perr.message + ")" : profile ? " (thành viên, chưa phải admin)" : " (chưa có hồ sơ)") : (demo ? "Chế độ xem thử" : "Đăng nhập để thả tim và bình luận");
