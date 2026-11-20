@@ -85,6 +85,7 @@ footer{padding:24px 0 40px;color:var(--muted);text-align:center;background:var(-
 @media(max-width:560px){.card{grid-template-columns:1fr}}
 @media(prefers-reduced-motion:no-preference){.card{transition:transform .15s,border-color .15s}}
 </style>
+<script>window.addEventListener("error",function(e){var t=document.getElementById("timeline");if(t&&e.message)t.innerHTML='<div class="note">Trang gặp lỗi: '+e.message+'. Hãy thử mở bằng Chrome hoặc Safari bản mới.</div>'});</script>
 </head>
 <body>
 <div class="wrap">
@@ -163,7 +164,7 @@ const SAMPLE = [
   {id:"7",title:"Lễ tri ân và bế giảng",event_date:"2027-05-22",youtube_url:"",description:"Buổi chia tay mái trường, nơi mọi người viết lưu bút cho nhau."}
 ];
 const $ = id => document.getElementById(id);
-const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const ytId = u => (String(u||"").match(/(?:youtu\.be\/|v=|embed\/|shorts\/)([\w-]{11})/)||[])[1];
 const fmt = d => d ? new Date(d + "T00:00").toLocaleDateString("vi-VN") : "";
 let user = null, profile = null, posts = [], mode = "login";
@@ -194,7 +195,7 @@ function shrink(file, max = 1400) {
 }
 function phHtml(x, extra) {
   const mine = user && x.user_id === user.id, u = phUrl(x.image_path);
-  return '<figure class="ph' + (x.approved ? "" : " pend") + '"><a href="' + u + '" target="_blank" rel="noopener"><img src="' + u + '" alt="' + esc(x.caption || "Ảnh của lớp") + '" loading="lazy"></a><figcaption><b>' + esc(x.profiles?.full_name || "Bạn lớp mình") + "</b>" +
+  return '<figure class="ph' + (x.approved ? "" : " pend") + '"><a href="' + u + '" target="_blank" rel="noopener"><img src="' + u + '" alt="' + esc(x.caption || "Ảnh của lớp") + '" loading="lazy"></a><figcaption><b>' + esc((x.profiles && x.profiles.full_name) || "Bạn lớp mình") + "</b>" +
     (x.approved ? "" : '<span class="tag">' + (mine ? "Đang chờ admin duyệt" : "Chờ duyệt") + "</span>") + (extra || "") + (x.caption ? "<p>" + esc(x.caption) + "</p>" : "") +
     (isAdmin() && !x.approved ? ' <button class="btn small" data-pok="' + x.id + '">Duyệt</button>' : "") +
     (mine || isAdmin() ? ' <button class="btn small" data-pdel="' + x.id + '" data-path="' + esc(x.image_path) + '">Xóa</button>' : "") + "</figcaption></figure>";
@@ -222,7 +223,7 @@ function setupPhotos(p) {
     if (demo) return m("Cần kết nối Supabase để đăng ảnh.");
     $("pGo").disabled = true; m("Đang tải ảnh lên...", true);
     try {
-      const blob = await shrink(f), path = user.id + "/" + crypto.randomUUID() + ".jpg";
+      const blob = await shrink(f), path = user.id + "/" + (window.crypto && crypto.randomUUID ? crypto.randomUUID() : Date.now() + "-" + Math.random().toString(36).slice(2)) + ".jpg";
       const up = await sb.storage.from(BUCKET).upload(path, blob, { contentType: "image/jpeg" });
       if (up.error) throw up.error;
       const { error } = await sb.from("photos").insert({ post_id: p.id, user_id: user.id, image_path: path, caption: $("pCap").value.trim(), approved: isAdmin() });
@@ -250,12 +251,12 @@ async function loadLikes() {
   if (demo) { paint(); return; }
   likes = {};
   const { data } = await sb.from("likes").select("post_id,user_id");
-  (data || []).forEach(r => { const l = likes[r.post_id] ||= { n: 0, mine: false }; l.n++; if (user && r.user_id === user.id) l.mine = true; });
+  (data || []).forEach(r => { const l = likes[r.post_id] = likes[r.post_id] || { n: 0, mine: false }; l.n++; if (user && r.user_id === user.id) l.mine = true; });
   paint();
 }
 async function toggleLike(id) {
   if (!demo && !user) { setMode("login"); $("aMsg").textContent = "Hãy đăng nhập để thả tim nhé."; $("dAuth").showModal(); return; }
-  const l = likes[id] ||= { n: 0, mine: false };
+  const l = likes[id] = likes[id] || { n: 0, mine: false };
   const was = l.mine; l.mine = !was; l.n += was ? -1 : 1; paint();
   if (demo) return;
   const { error } = was ? await sb.from("likes").delete().eq("post_id", id).eq("user_id", user.id) : await sb.from("likes").insert({ post_id: id, user_id: user.id });
@@ -263,10 +264,10 @@ async function toggleLike(id) {
 }
 
 /* ---------- Duyệt bình luận ---------- */
-const isAdmin = () => profile?.role === "admin";
+const isAdmin = () => (profile && profile.role) === "admin";
 function cmHtml(c, extra) {
   const mine = user && c.user_id === user.id;
-  return '<div class="c' + (c.approved ? "" : " pend") + '"><b>' + esc(c.profiles?.full_name || "Bạn lớp mình") + "</b><small>" + new Date(c.created_at).toLocaleString("vi-VN") + "</small>" +
+  return '<div class="c' + (c.approved ? "" : " pend") + '"><b>' + esc((c.profiles && c.profiles.full_name) || "Bạn lớp mình") + "</b><small>" + new Date(c.created_at).toLocaleString("vi-VN") + "</small>" +
     (c.approved ? "" : '<span class="tag">' + (mine ? "Đang chờ admin duyệt" : "Chờ duyệt") + "</span>") + (extra || "") +
     (isAdmin() && !c.approved ? ' <button class="btn small" data-ok="' + c.id + '">Duyệt</button>' : "") +
     (mine || isAdmin() ? ' <button class="btn small" data-del="' + c.id + '">Xóa</button>' : "") + "<p>" + esc(c.content) + "</p></div>";
@@ -284,8 +285,8 @@ async function countPending() {
 async function loadMod() {
   const sel = t => sb.from(t).select("*, profiles(full_name), posts(title)").eq("approved", false).order("created_at");
   const [c, ph] = await Promise.all([sel("comments"), sel("photos")]);
-  const where = x => "<small>trong “" + esc(x.posts?.title) + "”</small>";
-  $("modList").innerHTML = (ph.data?.length ? '<div class="grid">' + ph.data.map(x => phHtml(x, where(x))).join("") + "</div>" : "") + (c.data || []).map(x => cmHtml(x, where(x))).join("") || '<p class="who">Không có gì đang chờ duyệt.</p>';
+  const where = x => "<small>trong “" + esc((x.posts && x.posts.title)) + "”</small>";
+  $("modList").innerHTML = ((ph.data && ph.data.length) ? '<div class="grid">' + ph.data.map(x => phHtml(x, where(x))).join("") + "</div>" : "") + (c.data || []).map(x => cmHtml(x, where(x))).join("") || '<p class="who">Không có gì đang chờ duyệt.</p>';
   bindCm($("modList"), loadMod); bindPh($("modList"), loadMod);
 }
 $("btnMod").onclick = () => { loadMod(); $("dMod").showModal(); };
@@ -345,7 +346,11 @@ function render() {
 }
 async function loadPosts() {
   if (demo) posts = SAMPLE;
-  else { const { data } = await sb.from("posts").select("*").order("event_date", { ascending: true }); posts = data || []; }
+  else {
+    const rs = await sb.from("posts").select("*").order("event_date", { ascending: true });
+    if (rs.error) { $("timeline").innerHTML = '<div class="note">Không tải được sự kiện: ' + esc(rs.error.message) + "</div>"; return; }
+    posts = rs.data || [];
+  }
   render(); loadLikes();
 }
 
@@ -419,9 +424,9 @@ $("nGo").onclick = async () => {
 
 /* ---------- Trạng thái đăng nhập ---------- */
 async function refreshUser(session) {
-  user = session?.user || null; profile = null; let perr = null;
+  user = (session && session.user) || null; profile = null; let perr = null;
   if (user) { const rs = await sb.from("profiles").select("*").eq("id", user.id).maybeSingle(); profile = rs.data; perr = rs.error; }
-  $("who").textContent = user ? "Chào " + (profile?.full_name || user.email) + (isAdmin() ? " (admin)" : perr ? " (lỗi hồ sơ: " + perr.message + ")" : profile ? " (thành viên, chưa phải admin)" : " (chưa có hồ sơ)") : (demo ? "Chế độ xem thử" : "Đăng nhập để thả tim và bình luận");
+  $("who").textContent = user ? "Chào " + ((profile && profile.full_name) || user.email) + (isAdmin() ? " (admin)" : perr ? " (lỗi hồ sơ: " + perr.message + ")" : profile ? " (thành viên, chưa phải admin)" : " (chưa có hồ sơ)") : (demo ? "Chế độ xem thử" : "Đăng nhập để thả tim và bình luận");
   $("btnAuth").textContent = user ? "Đăng xuất" : "Đăng nhập";
   $("btnNew").hidden = $("btnMem").hidden = !isAdmin(); countPending();
   loadPosts();
