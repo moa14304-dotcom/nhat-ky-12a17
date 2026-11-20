@@ -75,6 +75,10 @@ header.top{display:flex;justify-content:space-between;align-items:center;gap:12p
 #coverBox img{display:block;width:100%;aspect-ratio:16/6;object-fit:cover}
 .btn.cvbtn{position:absolute;right:12px;bottom:12px;font-size:.85rem;padding:4px 14px;border-width:2px}
 .cvadd{width:100%;padding:44px 12px;border:0;background:transparent;font:1.3rem "Patrick Hand",cursive;color:var(--muted);cursor:pointer}
+.msgbox{width:min(440px,92vw)}
+.msgbox h2{font-size:1.2rem;margin:0 0 8px}
+.msgbox p{margin:0;overflow-wrap:anywhere}
+.mb{display:flex;gap:8px;justify-content:flex-end;margin-top:18px}
 .note{background:var(--white);border:2px dashed var(--rule);padding:18px;border-radius:8px;margin-left:-4px}
 dialog{width:min(680px,94vw);max-height:92vh;border:2px solid var(--ink);border-radius:6px 22px 6px 22px;padding:0;background:var(--paper);color:var(--ink)}
 dialog::backdrop{background:rgba(27,42,74,.6)}
@@ -154,6 +158,7 @@ footer{padding:24px 0 40px;color:var(--muted);text-align:center;background:var(-
 </div></dialog>
 
 <dialog id="dPost"><div class="dlg" id="postBody"></div></dialog>
+<dialog id="dMsg" class="msgbox"><div class="dlg"><h2 id="msgTitle"></h2><p id="msgText"></p><div class="mb"><button class="btn" id="msgNo" hidden>Hủy</button><button class="btn main" id="msgOk">OK</button></div></div></dialog>
 <dialog id="dLb"><button class="lbx" id="lbClose" aria-label="Đóng">×</button><button class="lbn lbp" id="lbPrev" aria-label="Ảnh trước">‹</button><img id="lbImg" alt=""><button class="lbn lbf" id="lbNext" aria-label="Ảnh sau">›</button><div class="lbc" id="lbCap"></div></dialog>
 <dialog id="dMem"><div class="dlg"><button class="x" data-close aria-label="Đóng">×</button><h2>Thành viên lớp</h2><p class="who" id="memCount"></p><div id="memList" style="margin-top:12px"></div></div></dialog>
 <dialog id="dMod"><div class="dlg"><button class="x" data-close aria-label="Đóng">×</button><h2>Chờ duyệt</h2><div id="modList" style="margin-top:12px"></div></div></dialog>
@@ -177,6 +182,16 @@ const SAMPLE = []; // không còn sự kiện mẫu: chỉ hiện những gì ad
 const $ = id => document.getElementById(id);
 const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const ytId = u => (String(u||"").match(/(?:youtu\.be\/|v=|embed\/|shorts\/)([\w-]{11})/)||[])[1];
+function say(text, ask) {
+  return new Promise(res => {
+    $("msgTitle").textContent = "Trùm cuối " + CONFIG.CLASS_NAME + " cho biết";
+    $("msgText").textContent = text; $("msgNo").hidden = !ask;
+    const done = v => { $("dMsg").close(); res(v); };
+    $("msgOk").onclick = () => done(true); $("msgNo").onclick = () => done(false);
+    $("dMsg").onclose = () => res(false);
+    $("dMsg").showModal();
+  });
+}
 const fmt = d => d ? new Date(d + "T00:00").toLocaleDateString("vi-VN") : "";
 let user = null, profile = null, posts = [], mode = "login";
 
@@ -276,14 +291,14 @@ $("coverFile").onchange = async () => {
   const f = $("coverFile").files[0]; if (!f || !$("cvBtn")) return;
   $("cvBtn").disabled = true; $("cvBtn").textContent = "Đang tải...";
   try {
-    const blob = await shrink(f, 1800), path = "site/cover-" + uid() + ".jpg";
+    const blob = await shrink(f, 1800), path = user.id + "/cover-" + uid() + ".jpg";
     const up = await sb.storage.from(BUCKET).upload(path, blob, { contentType: "image/jpeg" });
-    if (up.error) throw up.error;
+    if (up.error) throw new Error("Lỗi tải ảnh lên kho: " + up.error.message);
     const rs = await sb.from("site_settings").upsert({ key: "cover", value: path });
-    if (rs.error) { await sb.storage.from(BUCKET).remove([path]); throw rs.error; }
+    if (rs.error) { await sb.storage.from(BUCKET).remove([path]); throw new Error("Lỗi lưu cài đặt ảnh bìa (đã chạy SQL bảng site_settings chưa?): " + rs.error.message); }
     const old = coverPath; coverPath = path; coverUrl = phUrl(path);
     if (old) sb.storage.from(BUCKET).remove([old]);
-  } catch (e) { alert("Chưa đăng được ảnh bìa: " + (e.message || "")); }
+  } catch (e) { say("Chưa đăng được ảnh bìa. " + (e.message || "")); }
   $("coverFile").value = ""; paintCover();
 };
 
@@ -377,7 +392,7 @@ async function loadMem() {
       (me ? "" : ' <button class="btn small" data-role="' + m.id + '" data-to="' + (admin ? "member" : "admin") + '">' + (admin ? "Bỏ admin" : "Cấp admin") + '</button> <button class="btn small" data-blk="' + m.id + '" data-to="' + (m.blocked ? "0" : "1") + '">' + (m.blocked ? "Mở khóa" : "Khóa") + "</button>") + "</div>";
   }).join("");
   $("memList").querySelectorAll("[data-role]").forEach(b => b.onclick = async () => {
-    if (!confirm(b.dataset.to === "admin" ? "Cấp quyền admin cho bạn này?" : "Bỏ quyền admin của bạn này?")) return;
+    if (!(await say(b.dataset.to === "admin" ? "Cấp quyền admin cho bạn này?" : "Bỏ quyền admin của bạn này?", true))) return;
     await sb.from("profiles").update({ role: b.dataset.to }).eq("id", b.dataset.role); loadMem();
   });
   $("memList").querySelectorAll("[data-blk]").forEach(b => b.onclick = async () => {
@@ -515,7 +530,7 @@ $("nGo").onclick = async () => {
   await loadPosts();
   const el = document.querySelector('#timeline [data-id="' + rs.data.id + '"]');
   if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
-  if (fail) alert("Đã đăng sự kiện nhưng " + fail + " ảnh chưa tải lên được. Bạn có thể thêm lại trong trang sự kiện.");
+  if (fail) say("Đã đăng sự kiện nhưng " + fail + " ảnh chưa tải lên được. Bạn có thể thêm lại trong trang sự kiện.");
 };
 
 /* ---------- Trạng thái đăng nhập ---------- */
