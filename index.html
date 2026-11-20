@@ -32,16 +32,46 @@ header.top{display:flex;justify-content:space-between;align-items:center;gap:12p
 .timeline{margin:20px 0 80px;padding-left:28px;border-left:3px solid var(--phuong);position:relative}
 .month{font:1.7rem "Patrick Hand",cursive;margin:34px 0 10px -28px;padding-left:28px;background:linear-gradient(90deg,var(--phuong) 0 12px,transparent 12px) no-repeat left center/12px 3px}
 .month span{background:var(--paper);padding:0 10px 0 6px;margin-left:12px}
-.card{display:grid;grid-template-columns:150px 1fr;gap:16px;width:100%;text-align:left;background:var(--white);border:1px solid var(--rule);border-left:5px solid var(--ink);border-radius:4px 16px 4px 4px;padding:12px 12px 42px;margin:0;cursor:pointer}
-.card:hover{border-left-color:var(--phuong);transform:translateX(3px)}
+.card{display:block;width:100%;background:var(--white);border:1px solid var(--rule);border-left:5px solid var(--ink);border-radius:4px 16px 4px 4px;padding:14px 16px;margin:0}
+.card:hover{border-left-color:var(--phuong)}
 .thumb{aspect-ratio:16/10;background:var(--rule) center/cover;border-radius:3px;display:grid;place-items:center;color:var(--muted);font:1rem "Patrick Hand"}
-.card h3{margin:0;font-size:1.1rem;line-height:1.3}
-.card time{font-size:.85rem;color:var(--phuong);font-weight:600}
-.card p{margin:4px 0 0;color:var(--muted);font-size:.92rem;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.card h3{margin:0;font-size:1.15rem;line-height:1.3}
+.card time{font-size:.95rem;color:var(--phuong);font-weight:600}
+.card .dsc{margin:6px 0 0;color:var(--muted);font-size:.92rem;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.ch{display:flex;flex-wrap:wrap;align-items:center;gap:4px 12px}
+.ch .dt{display:inline-flex;align-items:center;gap:8px}
+.ttl{border:0;background:none;padding:0;text-align:left;font:inherit;font-weight:800;color:var(--ink);cursor:pointer}
+.ttl:hover{color:var(--phuong)}
+.frame{position:relative;margin:16px 0 4px;padding:8px;background:var(--white);border:1px solid var(--rule);border-radius:4px 16px 4px 16px;box-shadow:0 6px 16px rgba(27,42,74,.10)}
+.frame::before,.frame::after{content:"";position:absolute;top:-9px;width:74px;height:18px;border-radius:2px;z-index:1}
+.frame::before{left:26px;background:rgba(217,56,43,.30);transform:rotate(-3deg)}
+.frame::after{right:26px;background:rgba(255,214,102,.60);transform:rotate(2deg)}
+.frame.noimg{padding:22px 12px;text-align:center;border-style:dashed;box-shadow:none;color:var(--muted);font:1.15rem "Patrick Hand",cursive}
+.gal{display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:repeat(2,1fr);gap:6px;aspect-ratio:16/7;border-radius:3px 10px 3px 10px;overflow:hidden}
+.tile{position:relative;padding:0;border:0;background:var(--rule);cursor:zoom-in;overflow:hidden;min-height:0}
+.tile img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.tile .more{position:absolute;inset:0;display:grid;place-items:center;background:rgba(27,42,74,.62);color:#fff;font:1.7rem "Patrick Hand",cursive}
+.n1 .tile{grid-column:1/-1;grid-row:1/-1}
+.n2 .tile{grid-column:span 2;grid-row:1/-1}
+.n3 .tile:first-child,.n4 .tile:first-child,.n5 .tile:first-child{grid-column:span 2;grid-row:1/-1}
+.n3 .tile:not(:first-child),.n4 .tile:nth-child(2){grid-column:span 2}
+.pcm{margin-top:14px;display:grid;gap:8px}
+.pct{font:1.15rem "Patrick Hand",cursive;color:var(--muted)}
+.pct span{background:var(--ink);color:#fff;border-radius:999px;padding:0 8px;font:600 .75rem "Be Vietnam Pro",sans-serif;margin-left:6px;vertical-align:middle}
+.pc{display:flex;gap:10px;align-items:flex-start;background:var(--paper);border:1px solid var(--rule);border-radius:4px 14px 4px 14px;padding:8px 12px}
+.av{flex:none;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;color:#fff;font-weight:800;font-size:.85rem}
+.pb{min-width:0}
+.pb b{font-size:.88rem}
+.pb small{color:var(--muted);margin-left:8px;font-size:.75rem}
+.pb p{margin:0;font-size:.9rem;overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.nocm{margin:0}
+.more-cm{justify-self:start;border:0;background:none;color:var(--phuong);font-weight:600;cursor:pointer;padding:2px 4px;text-decoration:underline;text-underline-offset:3px}
+.cfoot{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:14px}
+.wr{flex:1;max-width:340px;text-align:left;border:1px dashed var(--muted);background:transparent;color:var(--muted);border-radius:999px;padding:5px 14px;cursor:pointer;font-size:.9rem}
+.wr:hover{border-color:var(--phuong);color:var(--phuong)}
 .item{position:relative;margin:0 0 16px}
 .heart{border:1px solid var(--rule);background:var(--white);border-radius:999px;padding:2px 12px;cursor:pointer;font-weight:600;color:var(--muted)}
 .heart.on{color:var(--phuong);border-color:var(--phuong)}
-.item .heart{position:absolute;right:10px;bottom:10px}
 .dlg .heart{margin-left:10px}
 .tag{display:inline-block;background:#FFE9A8;color:#6b4e00;font-size:.75rem;font-weight:600;padding:0 8px;border-radius:999px;margin-left:6px}
 .c.pend{border-style:dashed;background:#FFFBEA}
@@ -54,9 +84,8 @@ header.top{display:flex;justify-content:space-between;align-items:center;gap:12p
 .ph p{margin:2px 0 4px;overflow-wrap:anywhere}
 .fut .card{border-left-color:var(--phuong);background:#FFFBEA}
 .now{display:inline-block;margin:22px 0 10px -44px;background:var(--phuong);color:#fff;font:1.2rem "Patrick Hand",cursive;padding:1px 16px 1px 12px;border-radius:0 999px 999px 0}
-.card.exam{background:var(--ink);color:#fff;border-color:var(--ink);border-left-color:var(--phuong);cursor:default;padding-bottom:12px}
-.card.exam:hover{transform:none}
-.card.exam p{color:var(--rule);display:block}
+.card.exam{display:grid;grid-template-columns:150px 1fr;gap:16px;background:var(--ink);color:#fff;border-color:var(--ink);border-left-color:var(--phuong);padding:12px}
+.card.exam p{margin:4px 0 0;color:var(--rule);font-size:.92rem}
 .card.exam time{color:#FFB4AA}
 .card.exam .thumb{background:#2c3f66;color:#fff}
 .up-h{font:1.7rem "Patrick Hand",cursive;margin:0 0 10px;background:var(--paper);display:inline-block;padding-right:10px}
@@ -107,9 +136,11 @@ textarea{min-height:80px;resize:vertical}
 .tabs .btn[aria-pressed=true]{background:var(--ink);color:var(--white)}
 .msg{min-height:1.4em;margin:10px 0 0;color:var(--phuong);font-weight:600}
 .msg.ok{color:#1d7a3f}
-footer{padding:24px 0 40px;color:var(--muted);text-align:center;background:var(--paper)}
-@media(max-width:560px){.card{grid-template-columns:1fr}}
-@media(prefers-reduced-motion:no-preference){.card{transition:transform .15s,border-color .15s}}
+footer{padding:28px 0 44px;color:var(--muted);text-align:center;background:var(--paper)}
+.fq{font:1.45rem/1.5 "Patrick Hand",cursive;color:var(--ink);max-width:30em;margin:0 auto}
+.fs{display:block;margin-top:8px;font-size:.85rem}
+@media(max-width:560px){.card.exam{grid-template-columns:1fr}.gal{aspect-ratio:4/3}.card{padding:12px}}
+@media(prefers-reduced-motion:no-preference){.card{transition:border-color .15s}.tile img{transition:transform .3s}.tile:hover img{transform:scale(1.05)}}
 </style>
 <script>window.addEventListener("error",function(e){var t=document.getElementById("timeline");if(t&&e.message)t.innerHTML='<div class="note">Trang gặp lỗi: '+e.message+'. Hãy thử mở bằng Chrome hoặc Safari bản mới.</div>'});</script>
 </head>
@@ -139,7 +170,7 @@ footer{padding:24px 0 40px;color:var(--muted);text-align:center;background:var(-
   </section>
 
   <main class="timeline" id="timeline" aria-live="polite"></main>
-  <footer>Làm bằng tình cảm của cả lớp, để mai này còn nhớ.</footer>
+  <footer><div class="fq">Mai này mỗi người một ngả, nhưng những trang nhật ký này vẫn giữ cả lớp ở lại một thời áo trắng.</div><span class="fs" id="fSub"></span></footer>
 </div></div>
 
 <dialog id="dAuth"><div class="dlg">
@@ -208,6 +239,7 @@ let user = null, profile = null, posts = [], mode = "login";
 
 document.title = "Nhật ký " + CONFIG.CLASS_NAME;
 $("brand").textContent = "Lớp " + CONFIG.CLASS_NAME;
+$("fSub").textContent = "Lớp " + CONFIG.CLASS_NAME + " · Năm học " + CONFIG.SCHOOL_YEAR;
 $("title").textContent = "Nhật ký " + CONFIG.CLASS_NAME;
 $("sub").textContent = "Năm học cuối cấp " + CONFIG.SCHOOL_YEAR + ": mỗi sự kiện là một trang lưu bút.";
 const left = Math.ceil((new Date(CONFIG.EXAM_DATE + "T00:00") - Date.now()) / 864e5);
@@ -218,12 +250,17 @@ document.querySelectorAll("[data-close]").forEach(b => b.onclick = () => b.close
 /* ---------- Ảnh của lớp ---------- */
 const BUCKET = "class-photos";
 const uid = () => (window.crypto && crypto.randomUUID ? crypto.randomUUID() : Date.now() + "-" + Math.random().toString(36).slice(2));
-let covers = {};
+let covers = {}, gals = {}, cmts = {};
 async function loadCovers() {
-  covers = {};
+  covers = {}; gals = {}; cmts = {};
   if (demo) return;
-  const rs = await sb.from("photos").select("post_id,image_path").eq("approved", true).order("created_at");
-  (rs.data || []).forEach(x => { if (!covers[x.post_id]) covers[x.post_id] = phUrl(x.image_path); });
+  const [ph, cm] = await Promise.all([
+    sb.from("photos").select("post_id,image_path").eq("approved", true).order("created_at"),
+    sb.from("comments").select("id,post_id,content,created_at,profiles(full_name)").eq("approved", true).order("created_at", { ascending: false })
+  ]);
+  (ph.data || []).forEach(x => { (gals[x.post_id] = gals[x.post_id] || []).push(phUrl(x.image_path)); });
+  Object.keys(gals).forEach(k => { covers[k] = gals[k][0]; });
+  (cm.data || []).forEach(c => { (cmts[c.post_id] = cmts[c.post_id] || []).push(c); });
 }
 const phUrl = path => sb.storage.from(BUCKET).getPublicUrl(path).data.publicUrl;
 function shrink(file, max = 1400) {
@@ -416,11 +453,35 @@ $("btnMem").onclick = () => { loadMem(); $("dMem").showModal(); };
 /* ---------- Timeline ---------- */
 const daysTo = (d, today) => Math.round((new Date(d + "T00:00") - new Date(today + "T00:00")) / 864e5);
 const soonTag = n => '<span class="soon">' + (n === 0 ? "Hôm nay" : n === 1 ? "Ngày mai" : "Còn " + n + " ngày") + "</span>";
+const PV_PHOTOS = 5, PV_COMMENTS = 3;
+const AV = ["#D9382B", "#1B2A4A", "#2E7D5B", "#B7791F", "#6B46C1", "#0E7490"];
+const avColor = s => { let h = 0; for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0; return AV[h % AV.length]; };
+function galHtml(p, yt, tag) {
+  const all = gals[p.id] || [], total = all.length;
+  let list = all.slice(0, PV_PHOTOS);
+  if (!list.length && yt) list = ["https://i.ytimg.com/vi/" + yt + "/mqdefault.jpg"];
+  if (!list.length) return '<div class="frame noimg">' + (tag ? "Sắp diễn ra, ảnh sẽ được cập nhật sau" : "Chưa có ảnh") + "</div>";
+  const more = total - PV_PHOTOS, pid = esc(p.id);
+  return '<div class="frame"><div class="gal n' + list.length + '">' + list.map((u, i) =>
+    '<button class="tile" data-open="' + pid + '" aria-label="Xem ảnh của sự kiện"><img src="' + u + '" alt="" loading="lazy">' +
+    (i === PV_PHOTOS - 1 && more > 0 ? '<span class="more">+' + more + "</span>" : "") + "</button>").join("") + "</div></div>";
+}
+function cmPreview(p) {
+  const all = cmts[p.id] || [], show = all.slice(0, PV_COMMENTS), rest = all.length - show.length, pid = esc(p.id);
+  if (!show.length) return '<div class="pcm"><p class="who nocm">Chưa có bình luận nào. Bạn mở đầu nhé!</p></div>';
+  return '<div class="pcm"><div class="pct">Bình luận<span>' + all.length + "</span></div>" + show.map(c => {
+    const nm = (c.profiles && c.profiles.full_name) || "Bạn lớp mình", ini = nm.trim().split(/\s+/).pop().charAt(0).toUpperCase();
+    return '<div class="pc"><span class="av" style="background:' + avColor(nm) + '" aria-hidden="true">' + esc(ini) + '</span><div class="pb"><b>' + esc(nm) + "</b><small>" +
+      new Date(c.created_at).toLocaleDateString("vi-VN") + "</small><p>" + esc(c.content) + "</p></div></div>";
+  }).join("") + (rest > 0 ? '<button class="more-cm" data-open="' + pid + '" data-cm="1">Xem thêm ' + rest + " bình luận</button>" : "") + "</div>";
+}
 function cardHtml(p, tag) {
-  const id = ytId(p.youtube_url);
-  const cv = covers[p.id];
-  const th = cv ? 'style="background-image:url(' + cv + ')"' : id ? 'style="background-image:url(https://i.ytimg.com/vi/' + id + '/mqdefault.jpg)"' : "";
-  return '<div class="item' + (tag ? " fut" : "") + '"><button class="card" data-id="' + esc(p.id) + '"><div class="thumb" ' + th + ">" + (cv || id ? "" : tag ? "Sắp diễn ra" : "Chưa có ảnh") + '</div><div><time>' + fmt(p.event_date) + (tag || "") + "</time><h3>" + esc(p.title) + "</h3><p>" + esc(p.description) + "</p></div></button>" + heartBtn(p.id) + "</div>";
+  const yt = ytId(p.youtube_url), pid = esc(p.id);
+  return '<div class="item' + (tag ? " fut" : "") + '"><article class="card"><div class="ch"><span class="dt"><time>' + fmt(p.event_date) + "</time>" + (tag || "") +
+    '</span><h3><button class="ttl" data-open="' + pid + '">' + esc(p.title) + "</button></h3></div>" +
+    (p.description ? '<p class="dsc">' + esc(p.description) + "</p>" : "") +
+    galHtml(p, yt, tag) + cmPreview(p) +
+    '<div class="cfoot"><button class="wr" data-open="' + pid + '" data-cm="1">Viết bình luận...</button>' + heartBtn(p.id) + "</div></article></div>";
 }
 function examHtml(p, tag) {
   return '<div class="item"><div class="card exam"><div class="thumb">Về đích</div><div><time>' + fmt(p.event_date) + (tag || "") + "</time><h3>Kỳ thi tốt nghiệp THPT</h3><p>Điểm đến của hành trình 12 năm đi học. Cả lớp cùng về đích nhé!</p></div></div></div>";
@@ -443,7 +504,7 @@ function render() {
   });
   if (!marked) html += now;
   t.innerHTML = html;
-  t.querySelectorAll("button.card").forEach(c => c.onclick = () => openPost(c.dataset.id));
+  t.querySelectorAll("[data-open]").forEach(b => b.onclick = () => openPost(b.dataset.open, !!b.dataset.cm));
   t.querySelectorAll(".heart").forEach(bindHeart);
   paint();
 }
@@ -458,16 +519,17 @@ async function loadPosts() {
 }
 
 /* ---------- Chi tiết + bình luận ---------- */
-async function openPost(id) {
+async function openPost(id, toCm) {
   const p = posts.find(x => String(x.id) === String(id)); if (!p) return;
   const vid = ytId(p.youtube_url);
   $("postBody").innerHTML = '<button class="x" id="pClose" aria-label="Đóng">×</button><h2>' + esc(p.title) + '</h2><time style="color:var(--phuong);font-weight:600">' + fmt(p.event_date) + "</time> " + heartBtn(p.id) +
     (vid ? '<iframe class="video" src="https://www.youtube-nocookie.com/embed/' + vid + '" title="' + esc(p.title) + '" allowfullscreen loading="lazy"></iframe>' : "") +
-    '<p class="desc">' + esc(p.description) + '</p>' + photoSection() + '<section class="cm"><h3>Bình luận</h3><div id="cList"></div>' +
+    '<p class="desc">' + esc(p.description) + '</p>' + photoSection() + '<section class="cm" id="cSec"><h3>Bình luận</h3><div id="cList"></div>' +
     (user ? '<label for="cText">Viết đôi lời cho kỷ niệm này</label><textarea id="cText"></textarea><p class="msg" id="cMsg"></p><button class="btn main" id="cGo">Gửi bình luận</button>' : '<p class="note">Hãy đăng nhập để bình luận.</p>') + "</section>";
   $("postBody").querySelectorAll(".heart").forEach(bindHeart); paint();
   $("pClose").onclick = () => $("dPost").close();
   $("dPost").showModal();
+  if (toCm) setTimeout(() => { const s = $("cSec"); if (s) s.scrollIntoView({ block: "start" }); }, 80);
   const load = async () => {
     if (demo) { $("cList").innerHTML = '<p class="who">Chế độ xem thử: chưa kết nối Supabase nên chưa có bình luận.</p>'; return; }
     const { data } = await sb.from("comments").select("*, profiles(full_name)").eq("post_id", p.id).order("created_at");
@@ -485,6 +547,9 @@ async function openPost(id) {
     load(); countPending();
   };
 }
+
+// đóng trang chi tiết: làm mới ảnh và bình luận ở trang chủ
+$("dPost").addEventListener("close", () => { loadCovers().then(render); });
 
 /* ---------- Đăng nhập / đăng ký ---------- */
 function setMode(m) {
