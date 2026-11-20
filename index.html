@@ -128,8 +128,9 @@ footer{padding:24px 0 40px;color:var(--muted);text-align:center;background:var(-
   <button class="x" data-close aria-label="Đóng">×</button>
   <h2>Đăng sự kiện mới</h2>
   <label for="nTitle">Tên sự kiện</label><input id="nTitle">
-  <label for="nDate">Ngày diễn ra (ngày sắp tới sẽ có nhãn đếm ngược trên dòng thời gian)</label><input id="nDate" type="date">
-  <label for="nYt">Link YouTube (không bắt buộc)</label><input id="nYt" placeholder="https://youtu.be/...">
+  <label for="nDate">Ngày diễn ra (bắt buộc, ngày sắp tới sẽ có nhãn đếm ngược)</label><input id="nDate" type="date">
+  <label for="nFiles">Ảnh sự kiện (chọn được nhiều ảnh, tối đa 12)</label><input id="nFiles" type="file" accept="image/*" multiple>
+  <label for="nYt">Link video YouTube (nếu có)</label><input id="nYt" placeholder="https://youtu.be/...">
   <label for="nDesc">Mô tả</label><textarea id="nDesc"></textarea>
   <p class="msg" id="nMsg" role="status"></p>
   <button class="btn main" id="nGo">Đăng sự kiện</button>
@@ -180,6 +181,14 @@ document.querySelectorAll("[data-close]").forEach(b => b.onclick = () => b.close
 
 /* ---------- Ảnh của lớp ---------- */
 const BUCKET = "class-photos";
+const uid = () => (window.crypto && crypto.randomUUID ? crypto.randomUUID() : Date.now() + "-" + Math.random().toString(36).slice(2));
+let covers = {};
+async function loadCovers() {
+  covers = {};
+  if (demo) return;
+  const rs = await sb.from("photos").select("post_id,image_path").eq("approved", true).order("created_at");
+  (rs.data || []).forEach(x => { if (!covers[x.post_id]) covers[x.post_id] = phUrl(x.image_path); });
+}
 const phUrl = path => sb.storage.from(BUCKET).getPublicUrl(path).data.publicUrl;
 function shrink(file, max = 1400) {
   return new Promise((ok, no) => {
@@ -201,7 +210,7 @@ function phHtml(x, extra) {
     (mine || isAdmin() ? ' <button class="btn small" data-pdel="' + x.id + '" data-path="' + esc(x.image_path) + '">Xóa</button>' : "") + "</figcaption></figure>";
 }
 function bindPh(root, reload) {
-  root.querySelectorAll("[data-pok]").forEach(b => b.onclick = async () => { await sb.from("photos").update({ approved: true }).eq("id", b.dataset.pok); reload(); countPending(); });
+  root.querySelectorAll("[data-pok]").forEach(b => b.onclick = async () => { await sb.from("photos").update({ approved: true }).eq("id", b.dataset.pok); reload(); countPending(); loadCovers().then(render); });
   root.querySelectorAll("[data-pdel]").forEach(b => b.onclick = async () => { await sb.from("photos").delete().eq("id", b.dataset.pdel); await sb.storage.from(BUCKET).remove([b.dataset.path]); reload(); countPending(); });
 }
 function photoSection() {
@@ -223,7 +232,7 @@ function setupPhotos(p) {
     if (demo) return m("Cần kết nối Supabase để đăng ảnh.");
     $("pGo").disabled = true; m("Đang tải ảnh lên...", true);
     try {
-      const blob = await shrink(f), path = user.id + "/" + (window.crypto && crypto.randomUUID ? crypto.randomUUID() : Date.now() + "-" + Math.random().toString(36).slice(2)) + ".jpg";
+      const blob = await shrink(f), path = user.id + "/" + uid() + ".jpg";
       const up = await sb.storage.from(BUCKET).upload(path, blob, { contentType: "image/jpeg" });
       if (up.error) throw up.error;
       const { error } = await sb.from("photos").insert({ post_id: p.id, user_id: user.id, image_path: path, caption: $("pCap").value.trim(), approved: isAdmin() });
@@ -316,8 +325,9 @@ const daysTo = (d, today) => Math.round((new Date(d + "T00:00") - new Date(today
 const soonTag = n => '<span class="soon">' + (n === 0 ? "Hôm nay" : n === 1 ? "Ngày mai" : "Còn " + n + " ngày") + "</span>";
 function cardHtml(p, tag) {
   const id = ytId(p.youtube_url);
-  const th = id ? 'style="background-image:url(https://i.ytimg.com/vi/' + id + '/mqdefault.jpg)"' : "";
-  return '<div class="item' + (tag ? " fut" : "") + '"><button class="card" data-id="' + esc(p.id) + '"><div class="thumb" ' + th + ">" + (id ? "" : tag ? "Sắp diễn ra" : "Chưa có video") + '</div><div><time>' + fmt(p.event_date) + (tag || "") + "</time><h3>" + esc(p.title) + "</h3><p>" + esc(p.description) + "</p></div></button>" + heartBtn(p.id) + "</div>";
+  const cv = covers[p.id];
+  const th = cv ? 'style="background-image:url(' + cv + ')"' : id ? 'style="background-image:url(https://i.ytimg.com/vi/' + id + '/mqdefault.jpg)"' : "";
+  return '<div class="item' + (tag ? " fut" : "") + '"><button class="card" data-id="' + esc(p.id) + '"><div class="thumb" ' + th + ">" + (cv || id ? "" : tag ? "Sắp diễn ra" : "Chưa có ảnh") + '</div><div><time>' + fmt(p.event_date) + (tag || "") + "</time><h3>" + esc(p.title) + "</h3><p>" + esc(p.description) + "</p></div></button>" + heartBtn(p.id) + "</div>";
 }
 function examHtml(p, tag) {
   return '<div class="item"><div class="card exam"><div class="thumb">Về đích</div><div><time>' + fmt(p.event_date) + (tag || "") + "</time><h3>Kỳ thi tốt nghiệp THPT</h3><p>Điểm đến của hành trình 12 năm đi học. Cả lớp cùng về đích nhé!</p></div></div></div>";
@@ -351,7 +361,7 @@ async function loadPosts() {
     if (rs.error) { $("timeline").innerHTML = '<div class="note">Không tải được sự kiện: ' + esc(rs.error.message) + "</div>"; return; }
     posts = rs.data || [];
   }
-  render(); loadLikes();
+  await loadCovers(); render(); loadLikes();
 }
 
 /* ---------- Chi tiết + bình luận ---------- */
@@ -416,10 +426,30 @@ $("aGo").onclick = async () => {
 /* ---------- Đăng sự kiện (admin) ---------- */
 $("btnNew").onclick = () => { $("nMsg").textContent = ""; $("dNew").showModal(); };
 $("nGo").onclick = async () => {
-  const title = $("nTitle").value.trim(); if (!title) { $("nMsg").textContent = "Nhập tên sự kiện."; return; }
-  const { error } = await sb.from("posts").insert({ title, event_date: $("nDate").value || null, youtube_url: $("nYt").value.trim() || null, description: $("nDesc").value.trim() });
-  if (error) { $("nMsg").textContent = "Chưa đăng được: " + error.message; return; }
-  ["nTitle", "nDate", "nYt", "nDesc"].forEach(i => $(i).value = ""); $("dNew").close(); loadPosts();
+  const msg = t => { $("nMsg").textContent = t; };
+  const title = $("nTitle").value.trim(); if (!title) return msg("Nhập tên sự kiện.");
+  if (!$("nDate").value) return msg("Hãy chọn ngày diễn ra để sự kiện nằm đúng chỗ trên dòng thời gian.");
+  const files = Array.prototype.slice.call($("nFiles").files, 0, 12);
+  $("nGo").disabled = true; msg("Đang đăng sự kiện...");
+  const rs = await sb.from("posts").insert({ title: title, event_date: $("nDate").value || null, youtube_url: $("nYt").value.trim() || null, description: $("nDesc").value.trim() }).select().single();
+  if (rs.error) { $("nGo").disabled = false; return msg("Chưa đăng được: " + rs.error.message); }
+  let fail = 0;
+  for (let k = 0; k < files.length; k++) {
+    msg("Đang tải ảnh " + (k + 1) + "/" + files.length + "...");
+    try {
+      const blob = await shrink(files[k]), path = user.id + "/" + uid() + ".jpg";
+      const up = await sb.storage.from(BUCKET).upload(path, blob, { contentType: "image/jpeg" });
+      if (up.error) throw up.error;
+      const ins = await sb.from("photos").insert({ post_id: rs.data.id, user_id: user.id, image_path: path, caption: "", approved: true });
+      if (ins.error) { await sb.storage.from(BUCKET).remove([path]); throw ins.error; }
+    } catch (e) { fail++; }
+  }
+  ["nTitle", "nDate", "nYt", "nDesc", "nFiles"].forEach(id => $(id).value = "");
+  $("nGo").disabled = false; msg(""); $("dNew").close();
+  await loadPosts();
+  const el = document.querySelector('#timeline [data-id="' + rs.data.id + '"]');
+  if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
+  if (fail) alert("Đã đăng sự kiện nhưng " + fail + " ảnh chưa tải lên được. Bạn có thể thêm lại trong trang sự kiện.");
 };
 
 /* ---------- Trạng thái đăng nhập ---------- */
