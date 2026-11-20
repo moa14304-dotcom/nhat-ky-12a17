@@ -421,13 +421,13 @@ $("nGo").onclick = async () => {
 async function refreshUser(session) {
   user = session?.user || null; profile = null;
   if (user) { const { data } = await sb.from("profiles").select("*").eq("id", user.id).maybeSingle(); profile = data; }
-  $("who").textContent = user ? "Chào " + (profile?.full_name || user.email) : (demo ? "Chế độ xem thử" : "Đăng nhập để thả tim và bình luận");
+  $("who").textContent = user ? "Chào " + (profile?.full_name || user.email) + (isAdmin() ? " (admin)" : profile ? "" : " (chưa có hồ sơ)") : (demo ? "Chế độ xem thử" : "Đăng nhập để thả tim và bình luận");
   $("btnAuth").textContent = user ? "Đăng xuất" : "Đăng nhập";
   $("btnNew").hidden = $("btnMem").hidden = !isAdmin(); countPending();
   loadPosts();
 }
 if (demo) refreshUser(null);
-else { sb.auth.onAuthStateChange((_e, s) => refreshUser(s)); sb.auth.getSession().then(({ data }) => refreshUser(data.session)); }
+else { sb.auth.onAuthStateChange((_e, s) => { setTimeout(() => refreshUser(s), 0); }); sb.auth.getSession().then(({ data }) => refreshUser(data.session)); }
 </script>
 </body>
 </html>
