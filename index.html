@@ -206,7 +206,7 @@ function shrink(file, max = 1400) {
 }
 function phHtml(x, extra) {
   const mine = user && x.user_id === user.id, u = phUrl(x.image_path);
-  return '<figure class="ph' + (x.approved ? "" : " pend") + '"><a href="' + u + '" data-cap="' + esc(x.caption || "") + '" data-by="' + esc((x.profiles && x.profiles.full_name) || "Bạn lớp mình") + '" target="_blank" rel="noopener"><img src="' + u + '" alt="' + esc(x.caption || "Ảnh của lớp") + '" loading="lazy"></a><figcaption><b>' + esc((x.profiles && x.profiles.full_name) || "Bạn lớp mình") + "</b>" +
+  return '<figure class="ph' + (x.approved ? "" : " pend") + '"><a href="' + u + '" data-cap="' + esc(x.caption || "") + '" data-by="' + esc((x.profiles && x.profiles.full_name) || "Bạn lớp mình") + '" target="_blank" rel="noopener"><img src="' + u + '" alt="' + esc(x.caption || "Ảnh của lớp") + '" loading="lazy"></a><figcaption>Người đăng: <b>' + esc((x.profiles && x.profiles.full_name) || "Bạn lớp mình") + "</b>" +
     (x.approved ? "" : '<span class="tag">' + (mine ? "Đang chờ admin duyệt" : "Chờ duyệt") + "</span>") + (extra || "") + (x.caption ? "<p>" + esc(x.caption) + "</p>" : "") +
     (isAdmin() && !x.approved ? ' <button class="btn small" data-pok="' + x.id + '">Duyệt</button>' : "") +
     (mine || isAdmin() ? ' <button class="btn small" data-pdel="' + x.id + '" data-path="' + esc(x.image_path) + '">Xóa</button>' : "") + "</figcaption></figure>";
@@ -216,14 +216,15 @@ function bindPh(root, reload) {
   root.querySelectorAll("[data-pdel]").forEach(b => b.onclick = async () => { await sb.from("photos").delete().eq("id", b.dataset.pdel); await sb.storage.from(BUCKET).remove([b.dataset.path]); reload(); countPending(); });
 }
 function photoSection() {
-  return '<section class="cm"><h3>Ảnh của lớp</h3><div class="grid" id="pList"></div>' + (user ?
-    '<label for="pFile">Thêm ảnh kỷ niệm</label><input id="pFile" type="file" accept="image/*"><label for="pCap">Dòng trạng thái</label><input id="pCap" maxlength="200" placeholder="Ví dụ: Cả lớp cười không nhặt được mồm"><p class="msg" id="pMsg" role="status"></p><button class="btn main" id="pGo">Gửi ảnh</button>' : '<p class="note">Hãy đăng nhập để đăng ảnh.</p>') + "</section>";
+  return '<section class="cm" id="pSec"><h3>Ảnh của lớp</h3><div class="grid" id="pList"></div>' + (isAdmin() ?
+    '<label for="pFile">Thêm ảnh vào sự kiện này</label><input id="pFile" type="file" accept="image/*"><label for="pCap">Dòng chú thích (không bắt buộc)</label><input id="pCap" maxlength="200"><p class="msg" id="pMsg" role="status"></p><button class="btn main" id="pGo">Thêm ảnh</button>' : "") + "</section>";
 }
 function setupPhotos(p) {
   const load = async () => {
-    if (demo) { $("pList").innerHTML = '<p class="who">Chế độ xem thử: chưa kết nối Supabase nên chưa có ảnh.</p>'; return; }
+    if (demo) { $("pSec").hidden = true; return; }
     const { data } = await sb.from("photos").select("*, profiles(full_name)").eq("post_id", p.id).order("created_at");
-    $("pList").innerHTML = (data || []).map(x => phHtml(x)).join("") || '<p class="who">Chưa có ảnh nào. Bạn thêm tấm đầu tiên nhé!</p>';
+    if (!(data || []).length && !isAdmin()) { $("pSec").hidden = true; return; }
+    $("pList").innerHTML = (data || []).map(x => phHtml(x)).join("") || '<p class="who">Chưa có ảnh nào.</p>';
     bindPh($("pList"), load);
   };
   load();
@@ -253,7 +254,7 @@ function lbShow(i) {
   const n = lb.list.length; lb.i = (i + n) % n;
   const a = lb.list[lb.i];
   $("lbImg").src = a.href; $("lbImg").alt = a.dataset.cap || "Ảnh của lớp";
-  $("lbCap").innerHTML = "<b>" + esc(a.dataset.by) + "</b>" + (a.dataset.cap ? ": " + esc(a.dataset.cap) : "") + '<div style="color:#C9D6EA;font-size:.85rem">' + (lb.i + 1) + " / " + n + "</div>";
+  $("lbCap").innerHTML = "<div>Người đăng: <b>" + esc(a.dataset.by) + "</b></div>" + (a.dataset.cap ? "<div>" + esc(a.dataset.cap) + "</div>" : "") + '<div style="color:#C9D6EA;font-size:.85rem">' + (lb.i + 1) + " / " + n + "</div>";
   $("lbPrev").hidden = $("lbNext").hidden = n < 2;
 }
 document.addEventListener("click", e => {
