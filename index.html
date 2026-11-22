@@ -216,6 +216,11 @@ footer{margin-top:20px;padding:40px 0 56px;border-top:2px dashed var(--rule);bac
 .fq{font-size:1.6rem}
 .fs{margin-top:14px}
 
+/* ảnh bìa: khung ôm sát ảnh, không còn dải trắng hai bên */
+#coverBox.cvframe{display:block;width:fit-content;max-width:100%;margin:16px auto 0;padding:8px}
+#coverBox.cvframe.sk{width:100%}
+#coverBox.cvframe img{width:auto;max-width:100%;height:auto;max-height:62vh;margin:0 auto}
+
 /* hiệu ứng mở đầu: một lần duy nhất */
 @media(prefers-reduced-motion:no-preference){
 .hero h1,.hero p,.count{animation:rise .7s cubic-bezier(.2,.7,.2,1) both}
