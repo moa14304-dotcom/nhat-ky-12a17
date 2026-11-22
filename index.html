@@ -172,7 +172,8 @@ body{background-color:var(--paper);background-image:linear-gradient(var(--soft) 
 
 /* thanh trên cùng */
 .brand{display:flex;align-items:center;gap:10px;font-size:1.5rem}
-.brand::before{content:"";width:10px;height:26px;border-radius:3px 3px 8px 8px;background:var(--phuong);box-shadow:3px 0 0 var(--ink)}
+.brand::before{content:"";flex:none;width:36px;height:36px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cpath d='M3 37C5 30 9 38 12 33' fill='none' stroke='%23D9382B' stroke-width='2' stroke-linecap='round' stroke-dasharray='1 4'/%3E%3Cpath d='M36 5L4 17L16 22Z' fill='%23fff' stroke='%231B2A4A' stroke-width='2' stroke-linejoin='round'/%3E%3Cpath d='M36 5L16 22L14 35Z' fill='%23D9382B' stroke='%231B2A4A' stroke-width='2' stroke-linejoin='round'/%3E%3Cpath d='M16 22L22 27.5L14 35Z' fill='%231B2A4A' stroke='%231B2A4A' stroke-width='2' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat center/contain}
+@media(prefers-reduced-motion:no-preference){.brand::before{transition:transform .35s cubic-bezier(.2,.7,.2,1)}.brand:hover::before{transform:translate(3px,-3px) rotate(-8deg)}}
 .who{max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
 /* phần mở đầu */
@@ -221,6 +222,8 @@ footer{margin-top:20px;padding:40px 0 56px;border-top:2px dashed var(--rule);bac
 #coverBox.cvframe.sk{width:100%}
 #coverBox.cvframe img{width:auto;max-width:100%;height:auto;max-height:62vh;margin:0 auto}
 
+.top-q{margin:24px auto 8px;padding:0 8px;text-align:center}
+footer{padding-top:28px}
 /* hiệu ứng mở đầu: một lần duy nhất */
 @media(prefers-reduced-motion:no-preference){
 .hero h1,.hero p,.count{animation:rise .7s cubic-bezier(.2,.7,.2,1) both}
@@ -245,6 +248,7 @@ footer{margin-top:20px;padding:40px 0 56px;border-top:2px dashed var(--rule);bac
 <div class="wrap">
   <div id="coverBox" hidden></div>
   <input type="file" id="coverFile" accept="image/*" hidden>
+  <p class="fq top-q">Mai này mỗi người một ngả, nhưng một thời áo trắng của cả lớp vẫn còn nguyên trong những trang lưu bút này.</p>
 
 </div>
 <div class="bar"><div class="wrap">
@@ -267,7 +271,7 @@ footer{margin-top:20px;padding:40px 0 56px;border-top:2px dashed var(--rule);bac
   </section>
 
   <main class="timeline" id="timeline" aria-live="polite"><div class="skl"></div><div class="skl"></div></main>
-  <footer><div class="fq">Mai này mỗi người một ngả, nhưng một thời áo trắng của cả lớp vẫn còn nguyên trong những trang lưu bút này.</div><span class="fs" id="fSub"></span></footer>
+  <footer><span class="fs" id="fSub"></span></footer>
 </div></div>
 
 <dialog id="dAuth"><div class="dlg">
