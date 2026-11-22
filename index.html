@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Nhật ký 12A17</title>
+<title>Lưu bút 12A17</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600;800&family=Patrick+Hand&display=swap" rel="stylesheet">
@@ -163,6 +163,76 @@ dialog[open]::backdrop{animation:fade .24s}
 @keyframes pop{from{opacity:0;transform:scale(.96) translateY(6px)}}
 @keyframes fade{from{opacity:0}}
 }
+
+/* ===== Làm đẹp trang chủ ===== */
+:root{--hl:rgba(255,214,102,.7);--soft:#DCE5F3}
+/* giấy kẻ ô ly */
+body{background-color:var(--paper);background-image:linear-gradient(var(--soft) 1px,transparent 1px),linear-gradient(90deg,var(--soft) 1px,transparent 1px);background-size:24px 24px;background-position:-1px -1px}
+#sheet{background:transparent}
+
+/* thanh trên cùng */
+.brand{display:flex;align-items:center;gap:10px;font-size:1.5rem}
+.brand::before{content:"";width:10px;height:26px;border-radius:3px 3px 8px 8px;background:var(--phuong);box-shadow:3px 0 0 var(--ink)}
+.who{max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* phần mở đầu */
+.hero{padding:56px 0 40px}
+.hero h1{font-size:clamp(2.6rem,9vw,5rem);line-height:1.12;padding:0 .2em;margin-left:-.2em;background:linear-gradient(transparent 62%,var(--hl) 62% 90%,transparent 90%)}
+.hero p{font-size:1.5rem;margin-top:22px;max-width:30em;background:none}
+.count{margin-top:22px;padding:10px 20px;border-radius:6px 18px 6px 18px;line-height:1.5;box-shadow:0 8px 22px rgba(27,42,74,.22),inset 0 0 0 2px var(--ink),inset 0 0 0 3px rgba(255,255,255,.35);transform:rotate(-1deg)}
+.count b{font-size:1.5rem;font-weight:800;padding:0 2px}
+
+/* dòng thời gian */
+.timeline{margin-top:28px;padding-left:32px;border-left:3px solid var(--phuong)}
+.item::before{content:"";position:absolute;left:-41px;top:20px;width:13px;height:13px;border-radius:50%;background:var(--paper);border:3px solid var(--phuong);box-shadow:0 0 0 4px var(--paper)}
+.item.fut::before{background:var(--phuong)}
+.month{margin:44px 0 14px -32px;padding-left:32px;background-size:16px 3px}
+.month span{margin-left:16px;padding:2px 18px;background:var(--white);border:1.5px solid var(--ink);border-radius:999px;font-size:1.45rem;line-height:1.5;box-shadow:3px 3px 0 var(--ink)}
+.now{margin-left:-48px;padding:3px 20px 3px 16px;box-shadow:0 6px 16px rgba(217,56,43,.28)}
+
+/* thẻ sự kiện */
+.card{padding:18px 20px;border-radius:6px 20px 6px 6px}
+.ch{gap:2px 12px}
+.ch .dt{flex:1 0 100%}
+.ch h3{flex:1 0 100%}
+.card h3{font-size:1.35rem;line-height:1.3}
+.card time{display:inline-block;background:#FDECEA;color:var(--phuong);padding:0 10px;border-radius:999px;font-size:.85rem}
+.fut .card time{background:#FFE9A8;color:#8a1f15}
+.card .dsc{margin-top:8px;font-size:.95rem}
+.frame{margin-top:20px;padding:10px;border-radius:6px 18px 6px 18px}
+.gal{gap:5px;border-radius:4px 12px 4px 12px}
+.pcm{margin-top:16px}
+.pc{background:#F9FBFE}
+.cfoot{margin-top:16px;padding-top:12px;border-top:1px dashed var(--rule)}
+.wr{background:var(--paper);padding:7px 16px}
+.heart{padding:4px 14px;background:var(--white)}
+.heart:hover{border-color:var(--phuong);color:var(--phuong)}
+.card.exam{padding:16px;border-radius:6px 20px 6px 6px}
+.card.exam h3{font-size:1.35rem}
+.card.exam .thumb{font-size:1.6rem;background:linear-gradient(135deg,#2c3f66,#3d5a96)}
+
+/* chân trang */
+footer{margin-top:20px;padding:40px 0 56px;border-top:2px dashed var(--rule);background:none}
+.fq{font-size:1.6rem}
+.fs{margin-top:14px}
+
+/* hiệu ứng mở đầu: một lần duy nhất */
+@media(prefers-reduced-motion:no-preference){
+.hero h1,.hero p,.count{animation:rise .7s cubic-bezier(.2,.7,.2,1) both}
+.hero p{animation-delay:.1s}
+.count{animation-name:riseTilt;animation-delay:.2s}
+@keyframes riseTilt{from{opacity:0;transform:translateY(14px) rotate(-1deg)}to{opacity:1;transform:rotate(-1deg)}}
+}
+@media(max-width:560px){
+.hero{padding:36px 0 28px}
+.hero p{font-size:1.3rem}
+.timeline{padding-left:26px}
+.item::before{left:-35px}
+.month{margin-left:-26px;padding-left:26px}
+.now{margin-left:-42px}
+.card{padding:14px}
+.who{max-width:150px}
+}
 </style>
 <script>window.addEventListener("error",function(e){var t=document.getElementById("timeline");if(t&&e.message)t.innerHTML='<div class="note">Trang gặp lỗi: '+e.message+'. Hãy thử mở bằng Chrome hoặc Safari bản mới.</div>'});</script>
 </head>
@@ -192,7 +262,7 @@ dialog[open]::backdrop{animation:fade .24s}
   </section>
 
   <main class="timeline" id="timeline" aria-live="polite"><div class="skl"></div><div class="skl"></div></main>
-  <footer><div class="fq">Mai này mỗi người một ngả, nhưng những trang nhật ký này vẫn giữ cả lớp ở lại một thời áo trắng.</div><span class="fs" id="fSub"></span></footer>
+  <footer><div class="fq">Mai này mỗi người một ngả, nhưng một thời áo trắng của cả lớp vẫn còn nguyên trong những trang lưu bút này.</div><span class="fs" id="fSub"></span></footer>
 </div></div>
 
 <dialog id="dAuth"><div class="dlg">
@@ -259,11 +329,11 @@ function say(text, ask) {
 const fmt = d => d ? new Date(d + "T00:00").toLocaleDateString("vi-VN") : "";
 let user = null, profile = null, posts = [], mode = "login";
 
-document.title = "Nhật ký " + CONFIG.CLASS_NAME;
+document.title = "Lưu bút " + CONFIG.CLASS_NAME;
 $("brand").textContent = "Lớp " + CONFIG.CLASS_NAME;
 $("fSub").textContent = "Lớp " + CONFIG.CLASS_NAME + " · Năm học " + CONFIG.SCHOOL_YEAR;
-$("title").textContent = "Nhật ký " + CONFIG.CLASS_NAME;
-$("sub").textContent = "Năm học cuối cấp " + CONFIG.SCHOOL_YEAR + ": mỗi sự kiện là một trang lưu bút.";
+$("title").textContent = "Lưu bút " + CONFIG.CLASS_NAME;
+$("sub").textContent = "Năm học cuối cấp " + CONFIG.SCHOOL_YEAR + ": mỗi sự kiện là một trang kỷ niệm.";
 const left = Math.ceil((new Date(CONFIG.EXAM_DATE + "T00:00") - Date.now()) / 864e5);
 if (left > 0) { $("count").hidden = false; $("count").innerHTML = "Còn <b>" + left + "</b> ngày đến kỳ thi tốt nghiệp. Cùng giữ lại thật nhiều kỷ niệm nhé!"; }
 
