@@ -241,6 +241,27 @@ footer{padding-top:28px}
 .card{padding:14px}
 .who{max-width:150px}
 }
+
+/* ===== Clip, chuông thông báo ===== */
+.tile video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#0b1220}
+.tile .play{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:38px;height:38px;border-radius:50%;background:rgba(27,42,74,.72);color:#fff;display:grid;place-items:center;font-size:.85rem;padding-left:3px;pointer-events:none}
+.ph video{display:block;width:100%;aspect-ratio:4/3;object-fit:contain;background:#0b1220}
+.sm{color:var(--muted);font-size:.9rem;margin:0}
+.hint{font-weight:400;color:var(--muted)}
+.bell{position:relative;display:inline-flex;align-items:center;padding:6px 11px}
+.bell svg{display:block}
+.bell .badge{position:absolute;top:-7px;right:-7px;margin:0;min-width:20px;height:20px;line-height:20px;text-align:center;padding:0 5px;font-size:.72rem;font-weight:700;box-shadow:0 0 0 2px var(--paper)}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.stat{background:var(--white);border:1px solid var(--rule);border-radius:4px 14px 4px 14px;padding:10px 8px;text-align:center}
+.stat b{display:block;font:1.9rem/1.2 "Patrick Hand",cursive;color:var(--phuong)}
+.stat span{display:block;font-weight:600;font-size:.85rem;line-height:1.3}
+.stat small{display:block;margin-top:2px;color:var(--muted);font-size:.72rem;line-height:1.3}
+.fh{font:1.3rem "Patrick Hand",cursive;margin:18px 0 8px}
+@media(max-width:560px){.stats{gap:6px}.stat b{font-size:1.6rem}}
+@media(prefers-reduced-motion:no-preference){
+.bell.has svg{transform-origin:50% 10%;animation:ring 1.6s ease .3s 2}
+@keyframes ring{0%,70%,100%{transform:rotate(0)}10%,30%,50%{transform:rotate(14deg)}20%,40%,60%{transform:rotate(-14deg)}}
+}
 </style>
 <script>window.addEventListener("error",function(e){var t=document.getElementById("timeline");if(t&&e.message)t.innerHTML='<div class="note">Trang gặp lỗi: '+e.message+'. Hãy thử mở bằng Chrome hoặc Safari bản mới.</div>'});</script>
 </head>
@@ -256,6 +277,7 @@ footer{padding-top:28px}
     <div class="brand" id="brand"></div>
     <div class="actions">
       <span class="who" id="who"></span>
+      <button class="btn bell" id="btnBell" aria-label="Thông báo" hidden><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg><span class="badge" id="bellN" hidden></span></button>
       <button class="btn" id="btnMem" hidden>Thành viên</button>
       <button class="btn" id="btnMod" hidden>Chờ duyệt</button>
       <button class="btn" id="btnNew" hidden>Đăng sự kiện</button>
@@ -293,7 +315,7 @@ footer{padding-top:28px}
   <h2>Đăng sự kiện mới</h2>
   <label for="nTitle">Tên sự kiện</label><input id="nTitle">
   <label for="nDate">Ngày diễn ra (bắt buộc, ngày sắp tới sẽ có nhãn đếm ngược)</label><input id="nDate" type="date">
-  <label for="nFiles">Ảnh sự kiện (chọn được nhiều ảnh, tối đa 12)</label><input id="nFiles" type="file" accept="image/*" multiple>
+  <label for="nFiles">Ảnh hoặc clip sự kiện <span class="hint">(chọn nhiều tệp, tối đa 12; mỗi clip tối đa 50MB)</span></label><input id="nFiles" type="file" accept="image/*,video/*" multiple>
   <label for="nYt">Link video YouTube (nếu có)</label><input id="nYt" placeholder="https://youtu.be/...">
   <label for="nDesc">Mô tả</label><textarea id="nDesc"></textarea>
   <p class="msg" id="nMsg" role="status"></p>
@@ -303,6 +325,7 @@ footer{padding-top:28px}
 <dialog id="dPost"><div class="dlg" id="postBody"></div></dialog>
 <dialog id="dMsg" class="msgbox"><div class="dlg"><h2 id="msgTitle"></h2><p id="msgText"></p><div class="mb"><button class="btn" id="msgNo" hidden>Hủy</button><button class="btn main" id="msgOk">OK</button></div></div></dialog>
 <dialog id="dLb"><button class="lbx" id="lbClose" aria-label="Đóng">×</button><button class="lbn lbp" id="lbPrev" aria-label="Ảnh trước">‹</button><img id="lbImg" alt=""><button class="lbn lbf" id="lbNext" aria-label="Ảnh sau">›</button><div class="lbc" id="lbCap"></div></dialog>
+<dialog id="dBell"><div class="dlg"><button class="x" data-close aria-label="Đóng">×</button><h2>Thông báo</h2><p class="sm" id="bellSince"></p><div id="bellBody" style="margin-top:12px"></div></div></dialog>
 <dialog id="dMem"><div class="dlg"><button class="x" data-close aria-label="Đóng">×</button><h2>Thành viên lớp</h2><p class="who" id="memCount"></p><div id="memList" style="margin-top:12px"></div></div></dialog>
 <dialog id="dMod"><div class="dlg"><button class="x" data-close aria-label="Đóng">×</button><h2>Chờ duyệt</h2><div id="modList" style="margin-top:12px"></div></div></dialog>
 
@@ -359,7 +382,7 @@ async function loadCovers() {
     sb.from("photos").select("post_id,image_path").eq("approved", true).order("created_at"),
     sb.from("comments").select("id,post_id,content,created_at,profiles(full_name)").eq("approved", true).order("created_at", { ascending: false })
   ]);
-  (ph.data || []).forEach(x => { (gals[x.post_id] = gals[x.post_id] || []).push(phUrl(x.image_path)); });
+  (ph.data || []).forEach(x => { (gals[x.post_id] = gals[x.post_id] || []).push({ u: phUrl(x.image_path), v: isVid(x.image_path) }); });
   Object.keys(gals).forEach(k => { covers[k] = gals[k][0]; });
   (cm.data || []).forEach(c => { (cmts[c.post_id] = cmts[c.post_id] || []).push(c); });
 }
@@ -377,9 +400,12 @@ function shrink(file, max = 1400) {
   });
 }
 function phHtml(x, extra) {
-  const mine = user && x.user_id === user.id, u = phUrl(x.image_path);
-  return '<figure class="ph' + (x.approved ? "" : " pend") + '"><a href="' + u + '" data-cap="' + esc(x.caption || "") + '" data-by="' + esc((x.profiles && x.profiles.full_name) || "Bạn lớp mình") + '" target="_blank" rel="noopener"><img src="' + u + '" alt="' + esc(x.caption || "Ảnh của lớp") + '" loading="lazy"></a><figcaption>Người đăng: <b>' + esc((x.profiles && x.profiles.full_name) || "Bạn lớp mình") + "</b>" +
-    (x.approved ? "" : '<span class="tag">' + (mine ? "Đang chờ admin duyệt" : "Chờ duyệt") + "</span>") + (extra || "") + (x.caption ? "<p>" + esc(x.caption) + "</p>" : "") +
+  const mine = user && x.user_id === user.id, u = phUrl(x.image_path), by = (x.profiles && x.profiles.full_name) || "Bạn lớp mình";
+  const media = isVid(x.image_path)
+    ? '<video src="' + u + '#t=0.1" controls preload="metadata" playsinline></video>'
+    : '<a href="' + u + '" data-cap="' + esc(x.caption || "") + '" data-by="' + esc(by) + '" target="_blank" rel="noopener"><img src="' + u + '" alt="' + esc(x.caption || "Ảnh của lớp") + '" loading="lazy"></a>';
+  return '<figure class="ph' + (x.approved ? "" : " pend") + '">' + media + '<figcaption>Người đăng: <b>' + esc(by) + "</b>" +
+    (x.approved ? "" : '<span class="tag">' + (mine ? "Đang chờ giáo viên duyệt" : "Chờ duyệt") + "</span>") + (extra || "") + (x.caption ? "<p>" + esc(x.caption) + "</p>" : "") +
     (isAdmin() && !x.approved ? ' <button class="btn small" data-pok="' + x.id + '">Duyệt</button>' : "") +
     (mine || isAdmin() ? ' <button class="btn small" data-pdel="' + x.id + '" data-path="' + esc(x.image_path) + '">Xóa</button>' : "") + "</figcaption></figure>";
 }
@@ -387,36 +413,50 @@ function bindPh(root, reload) {
   root.querySelectorAll("[data-pok]").forEach(b => b.onclick = async () => { await sb.from("photos").update({ approved: true }).eq("id", b.dataset.pok); reload(); countPending(); loadCovers().then(render); });
   root.querySelectorAll("[data-pdel]").forEach(b => b.onclick = async () => { await sb.from("photos").delete().eq("id", b.dataset.pdel); await sb.storage.from(BUCKET).remove([b.dataset.path]); reload(); countPending(); });
 }
+const MAX_VIDEO = 50 * 1024 * 1024, MAX_UP = 10;
+const isVid = p => /\.(mp4|webm|mov|m4v)$/i.test(p || "");
+const vidExt = f => f.type === "video/webm" ? "webm" : f.type === "video/quicktime" ? "mov" : (((f.name || "").match(/\.(mp4|webm|mov|m4v)$/i) || [])[1] || "mp4").toLowerCase();
+async function uploadMedia(f, postId, caption, approved) {
+  const vid = (f.type || "").indexOf("video/") === 0;
+  if (vid && f.size > MAX_VIDEO) throw new Error("clip “" + f.name + "” nặng hơn 50MB, hãy cắt ngắn lại.");
+  const blob = vid ? f : await shrink(f), path = user.id + "/" + uid() + "." + (vid ? vidExt(f) : "jpg");
+  const up = await sb.storage.from(BUCKET).upload(path, blob, { contentType: vid ? (f.type || "video/mp4") : "image/jpeg" });
+  if (up.error) throw up.error;
+  const { error } = await sb.from("photos").insert({ post_id: postId, user_id: user.id, image_path: path, caption: caption, approved: approved });
+  if (error) { await sb.storage.from(BUCKET).remove([path]); throw error; }
+}
 function photoSection() {
-  return '<section class="cm" id="pSec"><h3>Ảnh của lớp</h3><div class="grid" id="pList"></div>' + (isAdmin() ?
-    '<label for="pFile">Thêm ảnh vào sự kiện này</label><input id="pFile" type="file" accept="image/*"><label for="pCap">Dòng chú thích (không bắt buộc)</label><input id="pCap" maxlength="200"><p class="msg" id="pMsg" role="status"></p><button class="btn main" id="pGo">Thêm ảnh</button>' : "") + "</section>";
+  return '<section class="cm" id="pSec"><h3>Ảnh và clip của lớp</h3><div class="grid" id="pList"></div>' + (user ?
+    '<label for="pFile">' + (isAdmin() ? "Thêm ảnh hoặc clip vào sự kiện này" : "Đăng ảnh hoặc clip của bạn") + ' <span class="hint">(tối đa ' + MAX_UP + ' tệp, mỗi clip tối đa 50MB' + (isAdmin() ? "" : "; giáo viên duyệt xong mới hiện với cả lớp") + ')</span></label><input id="pFile" type="file" accept="image/*,video/*" multiple><label for="pCap">Dòng chú thích (không bắt buộc)</label><input id="pCap" maxlength="200"><p class="msg" id="pMsg" role="status"></p><button class="btn main" id="pGo">Đăng</button>'
+    : '<p class="note">Hãy đăng nhập để đăng ảnh hoặc clip.</p>') + "</section>";
 }
 function setupPhotos(p) {
   const load = async () => {
     if (demo) { $("pSec").hidden = true; return; }
     const { data } = await sb.from("photos").select("*, profiles(full_name)").eq("post_id", p.id).order("created_at");
-    if (!(data || []).length && !isAdmin()) { $("pSec").hidden = true; return; }
-    $("pList").innerHTML = (data || []).map(x => phHtml(x)).join("") || '<p class="who">Chưa có ảnh nào.</p>';
+    if (!(data || []).length && !user) { $("pSec").hidden = true; return; }
+    $("pList").innerHTML = (data || []).map(x => phHtml(x)).join("") || '<p class="sm">Chưa có ảnh hay clip nào.</p>';
     bindPh($("pList"), load);
   };
   load();
   if (!$("pGo")) return;
   $("pGo").onclick = async () => {
     const m = (t, ok) => { $("pMsg").textContent = t; $("pMsg").className = "msg" + (ok ? " ok" : ""); };
-    const f = $("pFile").files[0]; if (!f) return m("Hãy chọn một tấm ảnh.");
+    const files = Array.prototype.slice.call($("pFile").files, 0, MAX_UP);
+    if (!files.length) return m("Hãy chọn ít nhất một ảnh hoặc clip.");
     if (demo) return m("Cần kết nối Supabase để đăng ảnh.");
-    $("pGo").disabled = true; m("Đang tải ảnh lên...", true);
-    try {
-      const blob = await shrink(f), path = user.id + "/" + uid() + ".jpg";
-      const up = await sb.storage.from(BUCKET).upload(path, blob, { contentType: "image/jpeg" });
-      if (up.error) throw up.error;
-      const { error } = await sb.from("photos").insert({ post_id: p.id, user_id: user.id, image_path: path, caption: $("pCap").value.trim(), approved: isAdmin() });
-      if (error) { await sb.storage.from(BUCKET).remove([path]); throw error; }
-      $("pFile").value = ""; $("pCap").value = "";
-      m(isAdmin() ? "Đã đăng ảnh." : "Đã gửi! Ảnh sẽ hiện với cả lớp sau khi admin duyệt.", true);
-      load(); countPending();
-    } catch (e) { m("Chưa gửi được ảnh: " + (e.message || "hãy thử ảnh JPG hoặc PNG.")); }
+    $("pGo").disabled = true;
+    let ok = 0, fail = 0, last = "";
+    for (let k = 0; k < files.length; k++) {
+      m("Đang tải " + (k + 1) + "/" + files.length + ((files[k].type || "").indexOf("video/") === 0 ? " (clip có thể lâu hơn ảnh)" : "") + "...", true);
+      try { await uploadMedia(files[k], p.id, $("pCap").value.trim(), isAdmin()); ok++; }
+      catch (e) { fail++; last = e.message || "hãy thử lại."; }
+    }
+    if (ok) { $("pFile").value = ""; $("pCap").value = ""; }
+    if (ok) m((isAdmin() ? "Đã đăng " + ok + " tệp." : "Đã gửi " + ok + " tệp! Sẽ hiện với cả lớp sau khi giáo viên duyệt.") + (fail ? " " + fail + " tệp chưa gửi được: " + last : ""), true);
+    else m("Chưa gửi được: " + last);
     $("pGo").disabled = false;
+    if (ok) { load(); countPending(); }
   };
 }
 
@@ -509,7 +549,7 @@ const isAdmin = () => (profile && profile.role) === "admin";
 function cmHtml(c, extra) {
   const mine = user && c.user_id === user.id;
   return '<div class="c' + (c.approved ? "" : " pend") + '"><b>' + esc((c.profiles && c.profiles.full_name) || "Bạn lớp mình") + "</b><small>" + new Date(c.created_at).toLocaleString("vi-VN") + "</small>" +
-    (c.approved ? "" : '<span class="tag">' + (mine ? "Đang chờ admin duyệt" : "Chờ duyệt") + "</span>") + (extra || "") +
+    (c.approved ? "" : '<span class="tag">' + (mine ? "Đang chờ giáo viên duyệt" : "Chờ duyệt") + "</span>") + (extra || "") +
     (isAdmin() && !c.approved ? ' <button class="btn small" data-ok="' + c.id + '">Duyệt</button>' : "") +
     (mine || isAdmin() ? ' <button class="btn small" data-del="' + c.id + '">Xóa</button>' : "") + "<p>" + esc(c.content) + "</p></div>";
 }
@@ -517,11 +557,14 @@ function bindCm(root, reload) {
   root.querySelectorAll("[data-ok]").forEach(b => b.onclick = async () => { await sb.from("comments").update({ approved: true }).eq("id", b.dataset.ok); reload(); countPending(); });
   root.querySelectorAll("[data-del]").forEach(b => b.onclick = async () => { await sb.from("comments").delete().eq("id", b.dataset.del); reload(); countPending(); });
 }
+let pendingN = 0;
 async function countPending() {
-  if (demo || !isAdmin()) { $("btnMod").hidden = true; return; }
+  if (demo || !isAdmin()) { $("btnMod").hidden = true; pendingN = 0; return 0; }
   const q = t => sb.from(t).select("id", { count: "exact", head: true }).eq("approved", false);
   const [a, b] = await Promise.all([q("comments"), q("photos")]), count = (a.count || 0) + (b.count || 0);
+  pendingN = count;
   $("btnMod").hidden = false; $("btnMod").innerHTML = "Chờ duyệt" + (count ? '<span class="badge">' + count + "</span>" : "");
+  return count;
 }
 async function loadMod() {
   const sel = t => sb.from(t).select("*, profiles(full_name), posts(title)").eq("approved", false).order("created_at");
@@ -531,6 +574,65 @@ async function loadMod() {
   bindCm($("modList"), loadMod); bindPh($("modList"), loadMod);
 }
 $("btnMod").onclick = () => { loadMod(); $("dMod").showModal(); };
+
+
+/* ---------- Chuông thông báo (giáo viên) ---------- */
+const seenKey = () => "lb_seen_" + (user ? user.id : "");
+const getSeen = () => { try { return localStorage.getItem(seenKey()) || ""; } catch (e) { return ""; } };
+const setSeen = () => { try { localStorage.setItem(seenKey(), new Date().toISOString()); } catch (e) {} };
+const cq = (t, since) => { const q = sb.from(t).select("post_id", { count: "exact", head: true }).neq("user_id", user.id); return since ? q.gt("created_at", since) : q; };
+const ago = iso => {
+  const m = Math.round((Date.now() - new Date(iso)) / 6e4);
+  return m < 1 ? "vừa xong" : m < 60 ? m + " phút trước" : m < 1440 ? Math.floor(m / 60) + " giờ trước" : new Date(iso).toLocaleDateString("vi-VN");
+};
+async function refreshBell() {
+  const b = $("btnBell");
+  if (demo || !isAdmin()) { b.hidden = true; return; }
+  b.hidden = false;
+  const s = getSeen(), r = await Promise.all(["photos", "comments", "likes"].map(t => cq(t, s)));
+  const n = r.reduce((a, x) => a + (x.error ? 0 : (x.count || 0)), 0);
+  $("bellN").hidden = !n; $("bellN").textContent = n > 99 ? "99+" : n;
+  b.classList.toggle("has", n > 0);
+  b.setAttribute("aria-label", "Thông báo" + (n ? ", " + n + " mới" : ""));
+}
+$("btnBell").onclick = async () => {
+  if (!isAdmin()) return;
+  const body = $("bellBody"), seen = getSeen();
+  body.innerHTML = '<p class="sm">Đang tải...</p>';
+  $("bellSince").textContent = seen ? "Tính từ lần xem trước: " + new Date(seen).toLocaleString("vi-VN") : "Tính từ trước đến nay (lần đầu mở chuông)";
+  $("dBell").showModal();
+  try {
+    const list = (t, cols) => { const q = sb.from(t).select(cols).neq("user_id", user.id).order("created_at", { ascending: false }).limit(100); return seen ? q.gt("created_at", seen) : q; };
+    const [ph, cm, lk, pf, t1, t2, t3, pn] = await Promise.all([
+      list("photos", "post_id,user_id,image_path,approved,created_at"), list("comments", "post_id,user_id,content,approved,created_at"), list("likes", "post_id,user_id,created_at"),
+      sb.from("profiles").select("id,full_name"), cq("photos"), cq("comments"), cq("likes"), countPending()
+    ]);
+    const names = {}; (pf.data || []).forEach(m => { names[m.id] = m.full_name; });
+    const P = ph.data || [], C = cm.data || [], L = lk.error ? [] : (lk.data || []);
+    const num = a => a.length >= 100 ? "100+" : a.length;
+    const nm = id => esc(names[id] || "Một bạn");
+    const ttl = id => { const p = posts.find(x => String(x.id) === String(id)); return p ? "“" + esc(p.title) + "”" : "một sự kiện"; };
+    const tag = ' <span class="tag">chờ duyệt</span>';
+    const ev = [];
+    P.forEach(x => ev.push({ t: x.created_at, h: "<b>" + nm(x.user_id) + "</b> đăng " + (isVid(x.image_path) ? "một clip" : "một ảnh") + " ở " + ttl(x.post_id) + (x.approved ? "" : tag) }));
+    C.forEach(x => ev.push({ t: x.created_at, h: "<b>" + nm(x.user_id) + "</b> bình luận ở " + ttl(x.post_id) + ": " + esc(x.content.length > 80 ? x.content.slice(0, 80) + "…" : x.content) + (x.approved ? "" : tag) }));
+    L.forEach(x => ev.push({ t: x.created_at, h: "<b>" + nm(x.user_id) + "</b> thả tim ở " + ttl(x.post_id) }));
+    ev.sort((a, b) => new Date(b.t) - new Date(a.t));
+    const stat = (n, label, sub) => '<div class="stat"><b>' + n + "</b><span>" + label + "</span><small>" + sub + "</small></div>";
+    const stats = '<div class="stats">' +
+      stat(num(P), "Học sinh đã đăng", "ảnh/clip từ " + new Set(P.map(x => x.user_id)).size + " bạn · tổng " + (t1.count || 0)) +
+      stat(lk.error ? (t3.count || 0) : num(L), "Lượt thả tim", lk.error ? "tổng (chưa đếm được lượt mới)" : "tổng " + (t3.count || 0)) +
+      stat(num(C), "Bình luận", "tổng " + (t2.count || 0)) + "</div>";
+    const pend = pn ? '<p style="margin:14px 0 0"><b>' + pn + '</b> mục đang chờ bạn duyệt. <button class="btn small main" id="bellMod">Mở danh sách chờ duyệt</button></p>' : '<p class="sm" style="margin-top:14px">Không có gì đang chờ duyệt.</p>';
+    const shown = ev.slice(0, 30);
+    const feed = '<h3 class="fh">Hoạt động ' + (seen ? "mới" : "từ trước đến nay") + "</h3>" + (shown.length
+      ? shown.map(e => '<div class="c"><small style="margin:0">' + ago(e.t) + "</small><p>" + e.h + "</p></div>").join("") + (ev.length > 30 ? '<p class="sm">…và ' + (ev.length - 30) + " hoạt động nữa.</p>" : "")
+      : '<p class="sm">Chưa có hoạt động mới từ lần xem trước.</p>');
+    body.innerHTML = stats + pend + feed;
+    if ($("bellMod")) $("bellMod").onclick = () => { $("dBell").close(); loadMod(); $("dMod").showModal(); };
+    setSeen(); refreshBell();
+  } catch (e) { body.innerHTML = '<p class="sm">Chưa tải được thông báo: ' + esc(e.message || "") + "</p>"; }
+};
 
 /* ---------- Thành viên (admin) ---------- */
 async function loadMem() {
@@ -561,11 +663,13 @@ const avColor = s => { let h = 0; for (let i = 0; i < s.length; i++) h = (h * 31
 function galHtml(p, yt, tag) {
   const all = gals[p.id] || [], total = all.length;
   let list = all.slice(0, PV_PHOTOS);
-  if (!list.length && yt) list = ["https://i.ytimg.com/vi/" + yt + "/mqdefault.jpg"];
+  if (!list.length && yt) list = [{ u: "https://i.ytimg.com/vi/" + yt + "/mqdefault.jpg" }];
   if (!list.length) return '<div class="frame noimg">' + (tag ? "Sắp diễn ra, ảnh sẽ được cập nhật sau" : "Chưa có ảnh") + "</div>";
   const more = total - PV_PHOTOS, pid = esc(p.id);
-  return '<div class="frame"><div class="gal n' + list.length + '">' + list.map((u, i) =>
-    '<button class="tile" data-open="' + pid + '" aria-label="Xem ảnh của sự kiện"><img src="' + u + '" alt="" loading="lazy" onload="this.classList.add(\'in\')">' +
+  return '<div class="frame"><div class="gal n' + list.length + '">' + list.map((m, i) =>
+    '<button class="tile" data-open="' + pid + '" aria-label="' + (m.v ? "Xem clip của sự kiện" : "Xem ảnh của sự kiện") + '">' +
+    (m.v ? '<video src="' + m.u + '#t=0.1" preload="metadata" muted playsinline></video><span class="play" aria-hidden="true">▶</span>'
+         : '<img src="' + m.u + '" alt="" loading="lazy" onload="this.classList.add(\'in\')">') +
     (i === PV_PHOTOS - 1 && more > 0 ? '<span class="more">+' + more + "</span>" : "") + "</button>").join("") + "</div></div>";
 }
 function cmPreview(p) {
@@ -650,7 +754,7 @@ async function openPost(id, toCm) {
     const { error } = await sb.from("comments").insert({ post_id: p.id, user_id: user.id, content: v, approved: isAdmin() });
     if (error) { $("cMsg").textContent = "Chưa gửi được: " + error.message; return; }
     $("cText").value = ""; $("cMsg").className = "msg ok";
-    $("cMsg").textContent = isAdmin() ? "Đã đăng bình luận." : "Đã gửi! Bình luận sẽ hiện với cả lớp sau khi admin duyệt.";
+    $("cMsg").textContent = isAdmin() ? "Đã đăng bình luận." : "Đã gửi! Bình luận sẽ hiện với cả lớp sau khi giáo viên duyệt.";
     load(); countPending();
   };
 }
@@ -700,21 +804,15 @@ $("nGo").onclick = async () => {
   if (rs.error) { $("nGo").disabled = false; return msg("Chưa đăng được: " + rs.error.message); }
   let fail = 0;
   for (let k = 0; k < files.length; k++) {
-    msg("Đang tải ảnh " + (k + 1) + "/" + files.length + "...");
-    try {
-      const blob = await shrink(files[k]), path = user.id + "/" + uid() + ".jpg";
-      const up = await sb.storage.from(BUCKET).upload(path, blob, { contentType: "image/jpeg" });
-      if (up.error) throw up.error;
-      const ins = await sb.from("photos").insert({ post_id: rs.data.id, user_id: user.id, image_path: path, caption: "", approved: true });
-      if (ins.error) { await sb.storage.from(BUCKET).remove([path]); throw ins.error; }
-    } catch (e) { fail++; }
+    msg("Đang tải tệp " + (k + 1) + "/" + files.length + "...");
+    try { await uploadMedia(files[k], rs.data.id, "", true); } catch (e) { fail++; }
   }
   ["nTitle", "nDate", "nYt", "nDesc", "nFiles"].forEach(id => $(id).value = "");
   $("nGo").disabled = false; msg(""); $("dNew").close();
   await loadPosts();
   const el = document.querySelector('#timeline [data-id="' + rs.data.id + '"]');
   if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
-  if (fail) say("Đã đăng sự kiện nhưng " + fail + " ảnh chưa tải lên được. Bạn có thể thêm lại trong trang sự kiện.");
+  if (fail) say("Đã đăng sự kiện nhưng " + fail + " tệp chưa tải lên được. Bạn có thể thêm lại trong trang sự kiện.");
 };
 
 /* ---------- Trạng thái đăng nhập ---------- */
@@ -725,14 +823,16 @@ async function refreshUser(session) {
   lastKey = key;
   user = (session && session.user) || null; profile = null; let perr = null;
   if (user) { const rs = await sb.from("profiles").select("*").eq("id", user.id).maybeSingle(); profile = rs.data; perr = rs.error; }
-  $("who").textContent = user ? "Chào " + ((profile && profile.full_name) || user.email) + (isAdmin() ? " (admin)" : perr ? " (lỗi hồ sơ: " + perr.message + ")" : profile ? " (thành viên, chưa phải admin)" : " (chưa có hồ sơ)") : (demo ? "Chế độ xem thử" : "Đăng nhập để thả tim và bình luận");
+  $("who").textContent = user ? "Chào " + ((profile && profile.full_name) || user.email) + (isAdmin() ? " (admin)" : perr ? " (lỗi hồ sơ: " + perr.message + ")" : profile ? " (thành viên, chưa phải admin)" : " (chưa có hồ sơ)") : (demo ? "Chế độ xem thử" : "Đăng nhập để thả tim, bình luận và đăng ảnh");
   $("btnAuth").textContent = user ? "Đăng xuất" : "Đăng nhập";
-  $("btnNew").hidden = $("btnMem").hidden = !isAdmin(); countPending(); paintCover();
+  $("btnNew").hidden = $("btnMem").hidden = !isAdmin(); countPending(); refreshBell(); paintCover();
   loadPosts();
 }
 if (demo) refreshUser(null);
 else { sb.auth.onAuthStateChange((_e, s) => { setTimeout(() => refreshUser(s), 0); }); sb.auth.getSession().then(({ data }) => refreshUser(data.session)); }
 if (!demo) loadCover();
+const tick = () => { if (!document.hidden && isAdmin()) { countPending(); refreshBell(); } };
+setInterval(tick, 60000); document.addEventListener("visibilitychange", tick);
 </script>
 </body>
 </html>
